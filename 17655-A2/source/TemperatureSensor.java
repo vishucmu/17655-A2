@@ -24,6 +24,7 @@
 import InstrumentationPackage.*;
 import MessagePackage.*;
 import java.util.*;
+import faildetect.HeartBeatClient;
 
 class TemperatureSensor
 {
@@ -44,6 +45,10 @@ class TemperatureSensor
 		/////////////////////////////////////////////////////////////////////////////////
 		// Get the IP address of the message manager
 		/////////////////////////////////////////////////////////////////////////////////
+
+		//Start heartbeat sender
+		Thread heartbeatThread = new Thread(new HeartBeatClient("TemperatureSensor is living!"));
+		heartbeatThread.start();
 
  		if ( args.length == 0 )
  		{

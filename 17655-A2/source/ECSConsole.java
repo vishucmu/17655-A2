@@ -18,6 +18,7 @@
 ******************************************************************************************************************/
 import TermioPackage.*;
 import MessagePackage.*;
+import faildetect.*;
 
 public class ECSConsole
 {
@@ -37,6 +38,12 @@ public class ECSConsole
 		/////////////////////////////////////////////////////////////////////////////////
 		// Get the IP address of the message manager
 		/////////////////////////////////////////////////////////////////////////////////
+
+
+		//Start failure detection mechanism
+		Thread detectionThread = new Thread(new HeartBeatServer());
+		detectionThread.start();
+
 
  		if ( args.length != 0 )
  		{
