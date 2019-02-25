@@ -165,7 +165,20 @@ class HumiditySensor
 
 				catch( Exception e )
 				{
-					mw.WriteMessage("Error getting message queue::" + e );
+					mw.WriteMessage("Reconnecting");
+					try
+					{
+				// Restarting the MessageManagerInterface
+						em = new MessageManagerInterface();
+						mw.WriteMessage("   Participant id: " + em.GetMyId() );
+						mw.WriteMessage("   Registration Time: " + em.GetRegistrationTime() );
+					}
+					catch (Exception f)
+					{
+						System.out.println("Reconnecting again");
+						
+
+					} 
 
 				} // catch
 
