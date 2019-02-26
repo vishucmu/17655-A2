@@ -24,6 +24,8 @@
 ******************************************************************************************************************/
 import InstrumentationPackage.*;
 import MessagePackage.*;
+
+import java.io.IOException;
 import java.util.*;
 
 class ECSMonitor extends Thread
@@ -99,7 +101,7 @@ class ECSMonitor extends Thread
 		int HSensorMiss=0;
 		int TControllerMiss=0;
 		int HControllerMiss=0;
-		int detection_delay = 7; 
+		int detection_delay = 8;
 		boolean TSensorFlag=false;
 		boolean HSensorFlag=false;
 		boolean TControllerFlag=false;
@@ -289,25 +291,47 @@ class ECSMonitor extends Thread
 //				    Repair(TSensor);
 					Process p = null;
 					try {
-						p = Runtime.getRuntime().exec(new String[]{"java","-classpath","","TemperatureSensor"});
+						p = Runtime.getRuntime().exec(new String[]{"java","-classpath","out/production/17655-A2/","TemperatureSensor"});
 						System.out.println(p.isAlive());
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
 				}
+
                 if(HSensorMiss> detection_delay ) 
                 {
                     mw.WriteMessage( "humidity sensor dies.");
+					Process p = null;
+					try {
+						p = Runtime.getRuntime().exec(new String[]{"java","-classpath","out/production/17655-A2/","HumiditySensor"});
+						System.out.println(p.isAlive());
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
                     //Repair(HSensor);
                 }
                 if(TControllerMiss> detection_delay) 
                 {
                     mw.WriteMessage( "temperature controller dies.");
+					Process p = null;
+					try {
+						p = Runtime.getRuntime().exec(new String[]{"java","-classpath","out/production/17655-A2/","TemperatureController"});
+						System.out.println(p.isAlive());
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
                     //Repair(TController);
                 }
                 if(HControllerMiss>detection_delay) 
                 {
                     mw.WriteMessage( "humidity controller dies.");
+					Process p = null;
+					try {
+						p = Runtime.getRuntime().exec(new String[]{"java","-classpath","out/production/17655-A2/","HumidityController"});
+						System.out.println(p.isAlive());
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
                     //Repair(HController);
                 }
 				

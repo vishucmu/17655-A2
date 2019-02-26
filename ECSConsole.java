@@ -75,7 +75,8 @@ public class ECSConsole
 				System.out.println( "Select an Option: \n" );
 				System.out.println( "1: Set temperature ranges" );
 				System.out.println( "2: Set humidity ranges" );
-				System.out.println( "X: Stop System\n" );
+				System.out.println( "X: Stop System\n"
+				);
 				System.out.print( "\n>>>> " );
 				Option = UserInput.KeyboardReadString();
 
