@@ -26,6 +26,10 @@ import InstrumentationPackage.*;
 import MessagePackage.*;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.util.*;
 
 class ECSMonitor extends Thread
@@ -86,6 +90,30 @@ class ECSMonitor extends Thread
 
 	} // Constructor
 
+
+	private void renewMsgMgrItfc(){
+
+		try
+		{
+			// Here we create an message manager interface object. This assumes
+			// that the message manager is on the local machine
+
+			if (MsgMgrIP != null && MsgMgrIP.length() > 0){
+				em = new MessageManagerInterface( MsgMgrIP );
+			}else{
+				em = new MessageManagerInterface();
+			}
+
+		}
+
+		catch (Exception e)
+		{
+			System.out.println("ECSMonitor::Error instantiating message manager interface: " + e);
+			Registered = false;
+
+		} // catch
+	}
+
 	public void run()
 	{
 		Message Msg = null;				// Message object
@@ -144,12 +172,11 @@ class ECSMonitor extends Thread
 					//restart here:
 					Process p = null;
 					try {
-						p = Runtime.getRuntime().exec(new String[]{"./EMReboot.sh"});
-						int returnval = p.waitFor();
-						System.out.println("kill returned:" + returnval);
-//						Thread.sleep(10000);
-//						p = Runtime.getRuntime().exec(new String[]{"java","-classpath","out/production/17655-A2/","MessageManager"});
-//						System.out.println(p.isAlive());
+						p = Runtime.getRuntime().exec(new String[]{"java","-classpath","out/production/17655-A2/","MessageManager"});
+						System.out.println(p.isAlive());
+						renewMsgMgrItfc();
+						Thread.sleep(1500);
+						continue;
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					} catch (InterruptedException e1) {
