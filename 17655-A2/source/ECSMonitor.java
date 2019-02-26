@@ -144,9 +144,15 @@ class ECSMonitor extends Thread
 					//restart here:
 					Process p = null;
 					try {
-						p = Runtime.getRuntime().exec(new String[]{"java","-classpath","out/production/17655-A2/","MessageManager"});
-						System.out.println(p.isAlive());
+						p = Runtime.getRuntime().exec(new String[]{"./EMReboot.sh"});
+						int returnval = p.waitFor();
+						System.out.println("kill returned:" + returnval);
+//						Thread.sleep(10000);
+//						p = Runtime.getRuntime().exec(new String[]{"java","-classpath","out/production/17655-A2/","MessageManager"});
+//						System.out.println(p.isAlive());
 					} catch (IOException e1) {
+						e1.printStackTrace();
+					} catch (InterruptedException e1) {
 						e1.printStackTrace();
 					}
 				} // catch
