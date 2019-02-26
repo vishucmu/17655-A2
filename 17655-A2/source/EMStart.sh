@@ -4,6 +4,6 @@
 echo -n -e "\033]0;MESSAGE MANAGER\007"
 echo "Starting RMI Registry and the Message Manager"
 rmiregistry &
-sleep 3
+sleep 10
 echo ""
 java MessageManager &

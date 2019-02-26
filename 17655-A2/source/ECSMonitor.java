@@ -125,6 +125,16 @@ class ECSMonitor extends Thread
 		boolean Done = false;			// Loop termination flag
 		boolean ON = true;				// Used to turn on heaters, chillers, humidifiers, and dehumidifiers
 		boolean OFF = false;			// Used to turn off heaters, chillers, humidifiers, and dehumidifiers
+		int TSensorMiss=0;
+		int HSensorMiss=0;
+		int TControllerMiss=0;
+		int HControllerMiss=0;
+		int detection_delay = 6;
+		boolean TSensorFlag=false;
+		boolean HSensorFlag=false;
+		boolean TControllerFlag=false;
+		boolean HControllerFlag=false;
+		String path = Thread.currentThread().getContextClassLoader().getResource("").getPath();
 
 		if (em != null)
 		{
@@ -194,6 +204,10 @@ class ECSMonitor extends Thread
 				// as it would in reality.
 
 				int qlen = eq.GetSize();
+				TSensorFlag=false;
+				HSensorFlag=false;
+				TControllerFlag=false;
+				HControllerFlag=false;
 
 				for ( int i = 0; i < qlen; i++ )
 				{
@@ -201,6 +215,8 @@ class ECSMonitor extends Thread
 
 					if ( Msg.GetMessageId() == 1 ) // Temperature reading
 					{
+						TSensorFlag=true;
+						TSensorMiss=0;
 						try
 						{
 							CurrentTemperature = Float.valueOf(Msg.GetMessage()).floatValue();
@@ -217,6 +233,8 @@ class ECSMonitor extends Thread
 
 					if ( Msg.GetMessageId() == 2 ) // Humidity reading
 					{
+						HSensorFlag=true;
+						HSensorMiss=0;
 						try
 						{
 
@@ -231,6 +249,19 @@ class ECSMonitor extends Thread
 						} // catch
 
 					} // if
+
+					if ( Msg.GetMessageId() == -5 ) //  Check Temperature Controller is alive
+					{
+						TControllerFlag=true;
+						TControllerMiss=0;
+					}
+
+					if ( Msg.GetMessageId() == -4 ) //  Check Humidity Controller is alive
+					{
+						HControllerFlag=true;
+						HControllerMiss=0;
+
+					}
 
 					// If the message ID == 99 then this is a signal that the simulation
 					// is to end. At this point, the loop termination flag is set to
@@ -263,6 +294,82 @@ class ECSMonitor extends Thread
 					} // if
 
 				} // for
+
+				// If console queue doesn't have a message from temperature sensor,
+				// increase the number of miss for temperature sensor.
+				if(!TSensorFlag)
+				{
+					TSensorMiss++;
+				}
+				// If console queue doesn't have a message from humidity sensor,
+				// increase the  number of miss for humidity sensor.
+				if(!HSensorFlag)
+				{
+					HSensorMiss++;
+				}
+				// If console queue doesn't have a message from temperature controller,
+				// increase the number of miss for temperature controller.
+				if(!TControllerFlag)
+				{
+					TControllerMiss++;
+				}
+				// If console queue doesn't have a message from humidity controller,
+				// increase the number of miss for humidity controller.
+				if(!HControllerFlag)
+				{
+					HControllerMiss++;
+				}
+				// Reset all flag to be false to prepare for next loop.
+				if(TSensorMiss> detection_delay)
+				{
+					mw.WriteMessage( "Temperature sensor dies.");
+					Process p = null;
+					try {
+						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",path,"TemperatureSensor"});
+						TSensorMiss=0;
+						mw.WriteMessage( "Temperature sensor restart succeed.");
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+					TSensorMiss = 0;
+				}
+
+				if(HSensorMiss> detection_delay )
+				{
+					mw.WriteMessage( "Humidity sensor dies.");
+					Process p = null;
+					try {
+						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",path,"HumiditySensor"});
+						HSensorMiss=0;
+						mw.WriteMessage( "Humidity sensor restart succeed.");
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+				if(TControllerMiss> detection_delay)
+				{
+					mw.WriteMessage( "Temperature controller dies.");
+					Process p = null;
+					try {
+						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",path,"TemperatureController"});
+						TControllerMiss=0;
+						mw.WriteMessage( "Temperature controller restart succeed.");
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+				if(HControllerMiss>detection_delay)
+				{
+					mw.WriteMessage( "Humidity controller dies.");
+					Process p = null;
+					try {
+						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",path,"HumidityController"});
+						HControllerMiss=0;
+						mw.WriteMessage( "Humidity controller restart succeed.");
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
 
 				mw.WriteMessage("Temperature:: " + CurrentTemperature + "F  Humidity:: " + CurrentHumidity );
 
