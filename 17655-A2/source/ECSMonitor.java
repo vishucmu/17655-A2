@@ -88,30 +88,6 @@ class ECSMonitor extends Thread
 
 	} // Constructor
 
-
-	private void renewMsgMgrItfc(){
-
-		try
-		{
-			// Here we create an message manager interface object. This assumes
-			// that the message manager is on the local machine
-
-			if (MsgMgrIP != null && MsgMgrIP.length() > 0){
-				em = new MessageManagerInterface( MsgMgrIP );
-			}else{
-				em = new MessageManagerInterface();
-			}
-
-		}
-
-		catch (Exception e)
-		{
-			System.out.println("ECSMonitor::Error instantiating message manager interface: " + e);
-			Registered = false;
-
-		} // catch
-	}
-
 	public void run()
 	{
 		Message Msg = null;				// Message object
@@ -123,16 +99,14 @@ class ECSMonitor extends Thread
 		boolean Done = false;			// Loop termination flag
 		boolean ON = true;				// Used to turn on heaters, chillers, humidifiers, and dehumidifiers
 		boolean OFF = false;			// Used to turn off heaters, chillers, humidifiers, and dehumidifiers
-		int TSensorMiss=0;
-		int HSensorMiss=0;
-		int TControllerMiss=0;
-		int HControllerMiss=0;
-		int detection_delay = 6;
-		boolean TSensorFlag=false;
-		boolean HSensorFlag=false;
-		boolean TControllerFlag=false;
-		boolean HControllerFlag=false;
-		String msgMgrClzPath = Robust.classPath();
+
+		long maxOffLineTime = 15000;
+
+		long tempReadingTime = 0;
+		long humiReadingTime = 0;
+		long tempCtrlAliveTime = 0;
+		long humiCtrlAliveTime = 0;
+
 
 		if (em != null)
 		{
@@ -201,10 +175,6 @@ class ECSMonitor extends Thread
 				// as it would in reality.
 
 				int qlen = eq.GetSize();
-				TSensorFlag=false;
-				HSensorFlag=false;
-				TControllerFlag=false;
-				HControllerFlag=false;
 
 				for ( int i = 0; i < qlen; i++ )
 				{
@@ -212,8 +182,7 @@ class ECSMonitor extends Thread
 
 					if ( Msg.GetMessageId() == 1 ) // Temperature reading
 					{
-						TSensorFlag=true;
-						TSensorMiss=0;
+						tempReadingTime = System.currentTimeMillis();
 						try
 						{
 							CurrentTemperature = Float.valueOf(Msg.GetMessage()).floatValue();
@@ -230,8 +199,7 @@ class ECSMonitor extends Thread
 
 					if ( Msg.GetMessageId() == 2 ) // Humidity reading
 					{
-						HSensorFlag=true;
-						HSensorMiss=0;
+						humiReadingTime = System.currentTimeMillis();
 						try
 						{
 
@@ -249,15 +217,12 @@ class ECSMonitor extends Thread
 
 					if ( Msg.GetMessageId() == -5 ) //  Check Temperature Controller is alive
 					{
-						TControllerFlag=true;
-						TControllerMiss=0;
+						tempCtrlAliveTime = System.currentTimeMillis();
 					}
 
 					if ( Msg.GetMessageId() == -4 ) //  Check Humidity Controller is alive
 					{
-						HControllerFlag=true;
-						HControllerMiss=0;
-
+						humiCtrlAliveTime = System.currentTimeMillis();
 					}
 
 					// If the message ID == 99 then this is a signal that the simulation
@@ -292,60 +257,28 @@ class ECSMonitor extends Thread
 
 				} // for
 
-				// If console queue doesn't have a message from temperature sensor,
-				// increase the number of miss for temperature sensor.
-				if(!TSensorFlag)
-				{
-					TSensorMiss++;
-				}
-				// If console queue doesn't have a message from humidity sensor,
-				// increase the  number of miss for humidity sensor.
-				if(!HSensorFlag)
-				{
-					HSensorMiss++;
-				}
-				// If console queue doesn't have a message from temperature controller,
-				// increase the number of miss for temperature controller.
-				if(!TControllerFlag)
-				{
-					TControllerMiss++;
-				}
-				// If console queue doesn't have a message from humidity controller,
-				// increase the number of miss for humidity controller.
-				if(!HControllerFlag)
-				{
-					HControllerMiss++;
-				}
-				// Reset all flag to be false to prepare for next loop.
-				if(TSensorMiss> detection_delay)
-				{
-					if(Robust.startNewJava("TemperatureSensor") != null){
-						TSensorMiss=0;
+				long currentTime = System.currentTimeMillis();
+				if (currentTime - tempReadingTime > maxOffLineTime){
+					if (Robust.startNewJava("TemperatureSensor") != null){
+						tempReadingTime = currentTime;
 					}
 				}
-
-				if(HSensorMiss> detection_delay )
-				{
+				if (currentTime - humiReadingTime > maxOffLineTime){
 					if(Robust.startNewJava("HumiditySensor") != null){
-						HSensorMiss=0;
+						humiReadingTime = currentTime;
+					}
+				}
+				if (currentTime - tempCtrlAliveTime > maxOffLineTime){
+					if (Robust.startNewJava("TemperatureController") != null){
+						tempCtrlAliveTime = currentTime;
+					}
+				}
+				if (currentTime - humiCtrlAliveTime > maxOffLineTime){
+					if (Robust.startNewJava("HumidityController") != null){
+						humiCtrlAliveTime = currentTime;
 					}
 				}
 
-				if(TControllerMiss> detection_delay)
-				{
-					mw.WriteMessage( "Temperature controller dies.");
-					if(Robust.startNewJava("TemperatureController") != null){
-						TControllerMiss=0;
-					}
-				}
-				
-				if(HControllerMiss>detection_delay)
-				{
-					mw.WriteMessage( "Humidity controller dies.");
-					if(Robust.startNewJava("HumidityController") != null){
-						HControllerMiss=0;
-					}
-				}
 
 				mw.WriteMessage("Temperature:: " + CurrentTemperature + "F  Humidity:: " + CurrentHumidity );
 
