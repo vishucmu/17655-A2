@@ -134,7 +134,10 @@ class ECSMonitor extends Thread
 				System.out.println("Error:: " + e);
 
 			} // catch
-
+			tempReadingTime = System.currentTimeMillis();
+			humiReadingTime = System.currentTimeMillis();
+			tempCtrlAliveTime = System.currentTimeMillis();
+			humiCtrlAliveTime = System.currentTimeMillis();
 			/********************************************************************
 			** Here we start the main simulation loop
 			*********************************************************************/
@@ -154,14 +157,17 @@ class ECSMonitor extends Thread
 					//restart here:
 					Process p = Robust.startNewJava("MessageManager");
 					System.out.println(p.isAlive());
-					try {
-						Thread.sleep(Robust.WAITING_TIME_FOR_RESTART_MSG_MGR);
-						em = Robust.newMsgMgr();
-					}catch (InterruptedException e1){
-						e1.printStackTrace();
-					} catch (RemoteException e1) {
-						//do nothing and retry
+					if(p.isAlive()){
+						try {
+							Thread.sleep(Robust.WAITING_TIME_FOR_RESTART_MSG_MGR);
+							em = Robust.newMsgMgr();
+						}catch (InterruptedException e1){
+							e1.printStackTrace();
+						} catch (RemoteException e1) {
+							//do nothing and retry
+						}
 					}
+
 					continue;
 				} // catch
 
@@ -259,23 +265,31 @@ class ECSMonitor extends Thread
 
 				long currentTime = System.currentTimeMillis();
 				if (currentTime - tempReadingTime > maxOffLineTime){
+					mw.WriteMessage("Temperature Sensor Died.");
 					if (Robust.startNewJava("TemperatureSensor") != null){
 						tempReadingTime = currentTime;
+						mw.WriteMessage("Temperature Sensor Restarted.");
 					}
 				}
 				if (currentTime - humiReadingTime > maxOffLineTime){
+					mw.WriteMessage("Humidity Sensor Died.");
 					if(Robust.startNewJava("HumiditySensor") != null){
 						humiReadingTime = currentTime;
+						mw.WriteMessage("Humidity Sensor Restarted.");
 					}
 				}
 				if (currentTime - tempCtrlAliveTime > maxOffLineTime){
+					mw.WriteMessage("Temperature controller Died.");
 					if (Robust.startNewJava("TemperatureController") != null){
 						tempCtrlAliveTime = currentTime;
+						mw.WriteMessage("Temperature controller Restarted.");
 					}
 				}
 				if (currentTime - humiCtrlAliveTime > maxOffLineTime){
+					mw.WriteMessage("Humidity controller Died.");
 					if (Robust.startNewJava("HumidityController") != null){
 						humiCtrlAliveTime = currentTime;
+						mw.WriteMessage("Humidity controller Restarted.");
 					}
 				}
 

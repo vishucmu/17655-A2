@@ -6,11 +6,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.rmi.Naming;
 import java.rmi.RemoteException;
 
 public class Robust {
 
-    public static final int WAITING_TIME_FOR_RESTART_MSG_MGR = 300;
+    public static final int WAITING_TIME_FOR_RESTART_MSG_MGR = 1000;
 
     public static MessageManagerInterface sleepAndReconnect(){
         try {
@@ -61,7 +62,6 @@ public class Robust {
     public static Process startNewJava(String className){
 
         try {
-
             final Process x = Runtime.getRuntime().exec(new String[]{"java", "-classpath", classPath(), className});
 
             new Thread(new Runnable() {
