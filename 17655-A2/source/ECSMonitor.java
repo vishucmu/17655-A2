@@ -343,26 +343,26 @@ class ECSMonitor extends Thread
 				if(TControllerMiss> detection_delay)
 				{
 					mw.WriteMessage( "Temperature controller dies.");
-//					Process p = null;
-//					try {
-//						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",msgMgrClzPath,"TemperatureController"});
-//						TControllerMiss=0;
-//						mw.WriteMessage( "Temperature controller restart succeed.");
-//					} catch (IOException e1) {
-//						e1.printStackTrace();
-//					}
+					Process p = null;
+					try {
+						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",msgMgrClzPath,"TemperatureController"});
+						TControllerMiss=0;
+						mw.WriteMessage( "Temperature controller restart succeed.");
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
 				}
 				if(HControllerMiss>detection_delay)
 				{
-//					mw.WriteMessage( "Humidity controller dies.");
-//					Process p = null;
-//					try {
-//						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",msgMgrClzPath,"HumidityController"});
-//						HControllerMiss=0;
-//						mw.WriteMessage( "Humidity controller restart succeed.");
-//					} catch (IOException e1) {
-//						e1.printStackTrace();
-//					}
+					mw.WriteMessage( "Humidity controller dies.");
+					Process p = null;
+					try {
+						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",msgMgrClzPath,"HumidityController"});
+						HControllerMiss=0;
+						mw.WriteMessage( "Humidity controller restart succeed.");
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
 				}
 
 				mw.WriteMessage("Temperature:: " + CurrentTemperature + "F  Humidity:: " + CurrentHumidity );
