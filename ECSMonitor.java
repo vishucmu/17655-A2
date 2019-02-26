@@ -99,6 +99,7 @@ class ECSMonitor extends Thread
 		int HSensorMiss=0;
 		int TControllerMiss=0;
 		int HControllerMiss=0;
+		int detection_delay = 7; 
 		boolean TSensorFlag=false;
 		boolean HSensorFlag=false;
 		boolean TControllerFlag=false;
@@ -161,6 +162,10 @@ class ECSMonitor extends Thread
 				// as it would in reality.
 
 				int qlen = eq.GetSize();
+				TSensorFlag=false;
+                HSensorFlag=false;
+                TControllerFlag=false;
+                HControllerFlag=false;
 
 				for ( int i = 0; i < qlen; i++ )
 				{
@@ -278,33 +283,24 @@ class ECSMonitor extends Thread
                     HControllerMiss++;
                 }
 				// Reset all flag to be false to prepare for next loop. 
-                TSensorFlag=false;
-                HSensorFlag=false;
-                TControllerFlag=false;
-                HControllerFlag=false;
-                
-				if(TSensorMiss>7) 
+				if(TSensorMiss> detection_delay) 
 				{
 				    mw.WriteMessage( "temperature sensor dies.");
-				    //TSensorMiss=0;
 				    //Repair(TSensor);
 				}
-                if(HSensorMiss>7) 
+                if(HSensorMiss> detection_delay ) 
                 {
                     mw.WriteMessage( "humidity sensor dies.");
-                    //HSensorMiss=0;
                     //Repair(HSensor);
                 }
-                if(TControllerMiss>7) 
+                if(TControllerMiss> detection_delay) 
                 {
                     mw.WriteMessage( "temperature controller dies.");
-                    //TControllerMiss=0;
                     //Repair(TController);
                 }
-                if(HControllerMiss>7) 
+                if(HControllerMiss>detection_delay) 
                 {
                     mw.WriteMessage( "humidity controller dies.");
-                    //HControllerMiss=0;
                     //Repair(HController);
                 }
 				
