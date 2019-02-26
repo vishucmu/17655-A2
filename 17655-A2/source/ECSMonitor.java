@@ -25,9 +25,7 @@
 import InstrumentationPackage.*;
 import MessagePackage.*;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.util.*;
@@ -134,7 +132,7 @@ class ECSMonitor extends Thread
 		boolean HSensorFlag=false;
 		boolean TControllerFlag=false;
 		boolean HControllerFlag=false;
-		String path = Thread.currentThread().getContextClassLoader().getResource("").getPath();
+		String msgMgrClzPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
 
 		if (em != null)
 		{
@@ -180,10 +178,28 @@ class ECSMonitor extends Thread
 				{
 					mw.WriteMessage("Error getting message queue::" + e );
 					//restart here:
-					Process p = null;
 					try {
-						p = Runtime.getRuntime().exec(new String[]{"java","-classpath","out/production/17655-A2/","MessageManager"});
-						System.out.println(p.isAlive());
+						final Process x = Runtime.getRuntime().exec(new String[]{"java","-classpath",msgMgrClzPath,"MessageManager"});
+
+//						new Thread(new Runnable() {
+//							@Override
+//							public void run() {
+//								InputStream es =  x.getErrorStream();
+//								BufferedReader bf = new BufferedReader(new InputStreamReader(es));
+//								String tmp = null;
+//								try {
+//									System.out.println("========== Error ================== !");
+//									while ((tmp = bf.readLine()) != null){
+//										System.out.println(tmp);
+//									}
+//									System.out.println("========== Error ================== !");
+//								}catch (IOException e){
+//									e.printStackTrace();
+//								}
+//							}
+//						}).start();
+
+						System.out.println(x.isAlive());
 						renewMsgMgrItfc();
 						Thread.sleep(1500);
 						continue;
@@ -325,7 +341,7 @@ class ECSMonitor extends Thread
 					mw.WriteMessage( "Temperature sensor dies.");
 					Process p = null;
 					try {
-						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",path,"TemperatureSensor"});
+						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",msgMgrClzPath,"TemperatureSensor"});
 						TSensorMiss=0;
 						mw.WriteMessage( "Temperature sensor restart succeed.");
 					} catch (IOException e1) {
@@ -339,7 +355,7 @@ class ECSMonitor extends Thread
 					mw.WriteMessage( "Humidity sensor dies.");
 					Process p = null;
 					try {
-						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",path,"HumiditySensor"});
+						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",msgMgrClzPath,"HumiditySensor"});
 						HSensorMiss=0;
 						mw.WriteMessage( "Humidity sensor restart succeed.");
 					} catch (IOException e1) {
@@ -351,7 +367,7 @@ class ECSMonitor extends Thread
 					mw.WriteMessage( "Temperature controller dies.");
 					Process p = null;
 					try {
-						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",path,"TemperatureController"});
+						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",msgMgrClzPath,"TemperatureController"});
 						TControllerMiss=0;
 						mw.WriteMessage( "Temperature controller restart succeed.");
 					} catch (IOException e1) {
@@ -363,7 +379,7 @@ class ECSMonitor extends Thread
 					mw.WriteMessage( "Humidity controller dies.");
 					Process p = null;
 					try {
-						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",path,"HumidityController"});
+						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",msgMgrClzPath,"HumidityController"});
 						HControllerMiss=0;
 						mw.WriteMessage( "Humidity controller restart succeed.");
 					} catch (IOException e1) {
