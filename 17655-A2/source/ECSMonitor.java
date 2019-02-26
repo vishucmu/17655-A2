@@ -357,15 +357,15 @@ class ECSMonitor extends Thread
 				}
 				if(HControllerMiss>detection_delay)
 				{
-//					mw.WriteMessage( "Humidity controller dies.");
-//					Process p = null;
-//					try {
-//						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",msgMgrClzPath,"HumidityController"});
-//						HControllerMiss=0;
-//						mw.WriteMessage( "Humidity controller restart succeed.");
-//					} catch (IOException e1) {
-//						e1.printStackTrace();
-//					}
+					mw.WriteMessage( "Humidity controller dies.");
+					Process p = null;
+					try {
+						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",msgMgrClzPath,"HumidityController"});
+						HControllerMiss=0;
+						mw.WriteMessage( "Humidity controller restart succeed.");
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
 				}
 
 				mw.WriteMessage("Temperature:: " + CurrentTemperature + "F  Humidity:: " + CurrentHumidity );
