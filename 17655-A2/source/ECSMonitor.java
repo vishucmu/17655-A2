@@ -157,7 +157,7 @@ class ECSMonitor extends Thread
 			** Here we start the main simulation loop
 			*********************************************************************/
 
-			while ( !Done )
+			while (!Done)
 			{
 				// Here we get our message queue from the message manager
 
@@ -249,7 +249,6 @@ class ECSMonitor extends Thread
 				    	catch (Exception e)
 				    	{
 							mw.WriteMessage("Error unregistering: " + e);
-							mw.WriteMessage("^^^=========^^^^ ::::::   unregister :" + e );
 
 				    	} // catch
 
