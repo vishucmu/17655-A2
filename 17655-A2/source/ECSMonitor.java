@@ -100,7 +100,7 @@ class ECSMonitor extends Thread
 		boolean ON = true;				// Used to turn on heaters, chillers, humidifiers, and dehumidifiers
 		boolean OFF = false;			// Used to turn off heaters, chillers, humidifiers, and dehumidifiers
 
-		long maxOffLineTime = 15000;
+		long maxOffLineTime = 10000;
 
 		long tempReadingTime = 0;
 		long humiReadingTime = 0;
