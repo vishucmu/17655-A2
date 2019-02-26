@@ -319,6 +319,7 @@ class ECSMonitor extends Thread
 				// Reset all flag to be false to prepare for next loop.
 				if(TSensorMiss> detection_delay)
 				{
+					mw.WriteMessage( "Temperature sensor dies.");
 					if(Robust.startNewJava("TemperatureSensor") != null){
 						TSensorMiss=0;
 					}
@@ -326,6 +327,7 @@ class ECSMonitor extends Thread
 
 				if(HSensorMiss> detection_delay )
 				{
+					mw.WriteMessage( "Humidity controller dies.");
 					if(Robust.startNewJava("HumiditySensor") != null){
 						HSensorMiss=0;
 					}
