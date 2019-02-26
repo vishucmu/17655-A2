@@ -32,6 +32,7 @@ import InstrumentationPackage.*;
 import MessagePackage.*;
 import Robustness.Robust;
 
+import java.rmi.RemoteException;
 import java.util.*;
 
 class HumidityController
@@ -152,10 +153,12 @@ class HumidityController
 					mw.WriteMessage("Error getting message queue::" + e );
 					try {
 						Thread.sleep(Robust.WAITING_TIME_FOR_RESTART_MSG_MGR);
+						em = Robust.newMsgMgr();
 					}catch (InterruptedException e1){
 						e1.printStackTrace();
+					} catch (RemoteException e1) {
+						//do nothing and retry again
 					}
-					em = Robust.newMsgMgr();
 					continue;
 				} // catch
 
