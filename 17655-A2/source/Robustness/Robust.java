@@ -9,6 +9,8 @@ import java.io.InputStreamReader;
 
 public class Robust {
 
+    public static final int WAITING_TIME_FOR_RESTART_MSG_MGR = 1500;
+
     public static MessageManagerInterface newMsgMgr(){
         // message manager is on the local system
         System.out.println("\n\nAttempting to register on the local machine..." );

@@ -30,6 +30,8 @@
 ******************************************************************************************************************/
 import InstrumentationPackage.*;
 import MessagePackage.*;
+import Robustness.Robust;
+
 import java.util.*;
 
 class TemperatureController
@@ -149,7 +151,13 @@ class TemperatureController
 				catch( Exception e )
 				{
 					mw.WriteMessage("Error getting message queue::" + e );
-
+					try {
+						Thread.sleep(Robust.WAITING_TIME_FOR_RESTART_MSG_MGR);
+					}catch (InterruptedException e1){
+						e1.printStackTrace();
+					}
+					em = Robust.newMsgMgr();
+					continue;
 				} // catch
 
 				// If there are messages in the queue, we read through them.
