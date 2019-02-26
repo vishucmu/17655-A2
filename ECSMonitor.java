@@ -153,7 +153,6 @@ class ECSMonitor extends Thread
 				catch( Exception e )
 				{
 					mw.WriteMessage("Error getting message queue::" + e );
-
 				} // catch
 
 				// If there are messages in the queue, we read through them.
@@ -290,6 +289,7 @@ class ECSMonitor extends Thread
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
+					TSensorMiss = 0;
 				}
 
                 if(HSensorMiss> detection_delay ) 
