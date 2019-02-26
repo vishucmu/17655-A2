@@ -101,7 +101,7 @@ class ECSMonitor extends Thread
 		int HSensorMiss=0;
 		int TControllerMiss=0;
 		int HControllerMiss=0;
-		int detection_delay = 8;
+		int detection_delay = 10;
 		boolean TSensorFlag=false;
 		boolean HSensorFlag=false;
 		boolean TControllerFlag=false;
@@ -151,7 +151,6 @@ class ECSMonitor extends Thread
 				catch( Exception e )
 				{
 					mw.WriteMessage("Error getting message queue::" + e );
-
 				} // catch
 
 				// If there are messages in the queue, we read through them.
@@ -296,6 +295,7 @@ class ECSMonitor extends Thread
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
+					TSensorMiss = 0;
 				}
 
                 if(HSensorMiss> detection_delay ) 
@@ -309,6 +309,7 @@ class ECSMonitor extends Thread
 						e1.printStackTrace();
 					}
                     //Repair(HSensor);
+					HSensorMiss = 0;
                 }
                 if(TControllerMiss> detection_delay) 
                 {
@@ -321,6 +322,7 @@ class ECSMonitor extends Thread
 						e1.printStackTrace();
 					}
                     //Repair(TController);
+					TControllerMiss = 0 ;
                 }
                 if(HControllerMiss>detection_delay) 
                 {
@@ -333,6 +335,7 @@ class ECSMonitor extends Thread
 						e1.printStackTrace();
 					}
                     //Repair(HController);
+					HControllerMiss = 0 ;
                 }
 				
 				mw.WriteMessage("Temperature:: " + CurrentTemperature + "F  Humidity:: " + CurrentHumidity );
