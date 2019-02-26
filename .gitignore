@@ -1,6 +1,38 @@
-*.class
-*/**/*.class
+# kdiff3 ignore
+*.orig
 
-.DS_Store
+# maven ignore
+target/
+out/
+
+# eclipse ignore
+.settings/
 .project
 .classpath
+
+# idea ignore
+.idea/
+*.ipr
+*.iml
+*.iws
+
+# temp ignore
+*.log
+*.cache
+*.diff
+*.patch
+*.tmp
+catalina.home_IS_UNDEFINED/
+
+# system ignore
+.DS_Store
+Thumbs.db
+
+# package ignore (optional)
+# *.jar
+# *.war
+# *.zip
+# *.tar
+# *.tar.gz
+
+
