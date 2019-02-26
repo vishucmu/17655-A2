@@ -6,12 +6,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.rmi.RemoteException;
 
 public class Robust {
 
-    public static final int WAITING_TIME_FOR_RESTART_MSG_MGR = 1500;
+    public static final int WAITING_TIME_FOR_RESTART_MSG_MGR = 300;
 
-    public static MessageManagerInterface newMsgMgr(){
+    public static MessageManagerInterface newMsgMgr() throws RemoteException {
         // message manager is on the local system
         System.out.println("\n\nAttempting to register on the local machine..." );
         try
@@ -23,11 +24,11 @@ public class Robust {
         }
         catch (Exception e)
         {
-            throw new RuntimeException("Error instantiating message manager interface: ",e);
+            throw new RemoteException("Error instantiating message manager interface: ",e);
         } // catch
     }
 
-    public static MessageManagerInterface newMsgMgr(String msgMgrIP){
+    public static MessageManagerInterface newMsgMgr(String msgMgrIP) throws RemoteException {
         // message manager is on the local system
         System.out.println("\n\nAttempting to register on the machine:: " + msgMgrIP );
         try
@@ -39,7 +40,7 @@ public class Robust {
         }
         catch (Exception e)
         {
-            throw new RuntimeException("Error instantiating message manager interface: ",e);
+            throw new RemoteException("Error instantiating message manager interface: ",e);
         } // catch
     }
 

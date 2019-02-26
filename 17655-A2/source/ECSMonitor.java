@@ -27,6 +27,7 @@ import MessagePackage.*;
 import Robustness.Robust;
 
 import java.io.*;
+import java.rmi.RemoteException;
 
 class ECSMonitor extends Thread
 {
@@ -181,10 +182,12 @@ class ECSMonitor extends Thread
 					System.out.println(p.isAlive());
 					try {
 						Thread.sleep(Robust.WAITING_TIME_FOR_RESTART_MSG_MGR);
+						em = Robust.newMsgMgr();
 					}catch (InterruptedException e1){
 						e1.printStackTrace();
+					} catch (RemoteException e1) {
+						//do nothing and retry
 					}
-					em = Robust.newMsgMgr();
 					continue;
 				} // catch
 
@@ -343,14 +346,14 @@ class ECSMonitor extends Thread
 				if(TControllerMiss> detection_delay)
 				{
 					mw.WriteMessage( "Temperature controller dies.");
-//					Process p = null;
-//					try {
-//						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",msgMgrClzPath,"TemperatureController"});
-//						TControllerMiss=0;
-//						mw.WriteMessage( "Temperature controller restart succeed.");
-//					} catch (IOException e1) {
-//						e1.printStackTrace();
-//					}
+					Process p = null;
+					try {
+						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",msgMgrClzPath,"TemperatureController"});
+						TControllerMiss=0;
+						mw.WriteMessage( "Temperature controller restart succeed.");
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
 				}
 				if(HControllerMiss>detection_delay)
 				{
