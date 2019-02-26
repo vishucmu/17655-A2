@@ -24,6 +24,8 @@
 ******************************************************************************************************************/
 import InstrumentationPackage.*;
 import MessagePackage.*;
+
+import java.io.IOException;
 import java.util.*;
 
 class ECSMonitor extends Thread
@@ -136,11 +138,17 @@ class ECSMonitor extends Thread
 					eq = em.GetMessageQueue();
 
 				} // try
-
 				catch( Exception e )
 				{
 					mw.WriteMessage("Error getting message queue::" + e );
-
+					//restart here:
+					Process p = null;
+					try {
+						p = Runtime.getRuntime().exec(new String[]{"java","-classpath","out/production/17655-A2/","MessageManager"});
+						System.out.println(p.isAlive());
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
 				} // catch
 
 				// If there are messages in the queue, we read through them.
@@ -208,6 +216,7 @@ class ECSMonitor extends Thread
 				    	catch (Exception e)
 				    	{
 							mw.WriteMessage("Error unregistering: " + e);
+							mw.WriteMessage("^^^=========^^^^ ::::::   unregister :" + e );
 
 				    	} // catch
 
