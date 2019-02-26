@@ -1,5 +1,7 @@
 # kdiff3 ignore
 *.orig
+*.class
+./**/*.class
 
 # maven ignore
 target/
