@@ -287,8 +287,13 @@ class ECSMonitor extends Thread
 				{
 				    mw.WriteMessage( "temperature sensor dies.");
 //				    Repair(TSensor);
-					p = Runtime.getRuntime().exec(new String[]{"java","-classpath","","TemperatureSensor"});
-					System.out.println(p.isAlive());
+					Process p = null;
+					try {
+						p = Runtime.getRuntime().exec(new String[]{"java","-classpath","","TemperatureSensor"});
+						System.out.println(p.isAlive());
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
 				}
                 if(HSensorMiss> detection_delay ) 
                 {
