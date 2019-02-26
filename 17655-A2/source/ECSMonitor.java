@@ -24,14 +24,16 @@
 ******************************************************************************************************************/
 import InstrumentationPackage.*;
 import MessagePackage.*;
+import Robustness.Robust;
 
 import java.io.*;
-import java.rmi.Naming;
-import java.rmi.NotBoundException;
-import java.util.*;
 
 class ECSMonitor extends Thread
 {
+
+	private static final int WAITING_TIME_FOR_NEW_PROCESS = 1500;
+
+
 	private MessageManagerInterface em = null;	// Interface object to the message manager
 	private String MsgMgrIP = null;				// Message Manager IP address
 	private float TempRangeHigh = 100;			// These parameters signify the temperature and humidity ranges in terms
@@ -132,7 +134,7 @@ class ECSMonitor extends Thread
 		boolean HSensorFlag=false;
 		boolean TControllerFlag=false;
 		boolean HControllerFlag=false;
-		String msgMgrClzPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
+		String msgMgrClzPath = Robust.classPath();
 
 		if (em != null)
 		{
@@ -178,36 +180,15 @@ class ECSMonitor extends Thread
 				{
 					mw.WriteMessage("Error getting message queue::" + e );
 					//restart here:
+					Process p = Robust.startNewJava("MessageManager");
+					System.out.println(p.isAlive());
 					try {
-						final Process x = Runtime.getRuntime().exec(new String[]{"java","-classpath",msgMgrClzPath,"MessageManager"});
-
-//						new Thread(new Runnable() {
-//							@Override
-//							public void run() {
-//								InputStream es =  x.getErrorStream();
-//								BufferedReader bf = new BufferedReader(new InputStreamReader(es));
-//								String tmp = null;
-//								try {
-//									System.out.println("========== Error ================== !");
-//									while ((tmp = bf.readLine()) != null){
-//										System.out.println(tmp);
-//									}
-//									System.out.println("========== Error ================== !");
-//								}catch (IOException e){
-//									e.printStackTrace();
-//								}
-//							}
-//						}).start();
-
-						System.out.println(x.isAlive());
-						renewMsgMgrItfc();
-						Thread.sleep(1500);
-						continue;
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					} catch (InterruptedException e1) {
+						Thread.sleep(WAITING_TIME_FOR_NEW_PROCESS);
+					}catch (InterruptedException e1){
 						e1.printStackTrace();
 					}
+					em = Robust.newMsgMgr();
+					continue;
 				} // catch
 
 				// If there are messages in the queue, we read through them.
