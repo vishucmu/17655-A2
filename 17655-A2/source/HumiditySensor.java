@@ -23,6 +23,9 @@
 ******************************************************************************************************************/
 import InstrumentationPackage.*;
 import MessagePackage.*;
+import Robustness.Robust;
+
+import java.rmi.RemoteException;
 import java.util.*;
 
 class HumiditySensor
@@ -151,7 +154,21 @@ class HumiditySensor
 			{
 				// Post the current relative humidity
 
-				PostHumidity( em, RelativeHumidity );
+				Message msg = new Message( (int) 2, String.valueOf(RelativeHumidity) );
+
+				// Here we send the message to the message manager.
+				try
+				{
+					em.SendMessage( msg );
+					//mw.WriteMessage( "Sent Humidity Message" );
+
+				} // try
+				catch (Exception e)
+				{
+					System.out.println( "Error Posting Relative Humidity:: " + e );
+					em = Robust.sleepAndReconnect();
+					continue;
+				} // catch
 
 				mw.WriteMessage("Current Relative Humidity:: " + RelativeHumidity + "%");
 
@@ -166,7 +183,8 @@ class HumiditySensor
 				catch( Exception e )
 				{
 					mw.WriteMessage("Error getting message queue::" + e );
-
+					em = Robust.sleepAndReconnect();
+					continue;
 				} // catch
 
 				// If there are messages in the queue, we read through them.
@@ -331,44 +349,4 @@ class HumiditySensor
 		return(r.nextBoolean());
 
 	} // CoinToss
-
-	/***************************************************************************
-	* CONCRETE METHOD:: PostHumidity
-	* Purpose: This method posts the specified relative humidity value to the
-	* specified message manager. This method assumes an message ID of 2.
-	*
-	* Arguments: MessageManagerInterface ei - this is the messagemanger interface
-	*			 where the message will be posted.
-	*
-	*			 float humidity - this is the humidity value.
-	*
-	* Returns: none
-	*
-	* Exceptions: None
-	*
-	***************************************************************************/
-
-	static private void PostHumidity(MessageManagerInterface ei, float humidity )
-	{
-		// Here we create the message.
-
-		Message msg = new Message( (int) 2, String.valueOf(humidity) );
-
-		// Here we send the message to the message manager.
-
-		try
-		{
-			ei.SendMessage( msg );
-			//mw.WriteMessage( "Sent Humidity Message" );
-
-		} // try
-
-		catch (Exception e)
-		{
-			System.out.println( "Error Posting Relative Humidity:: " + e );
-
-		} // catch
-
-	} // PostHumidity
-
 } // Humidity Sensor

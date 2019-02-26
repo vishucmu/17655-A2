@@ -152,14 +152,7 @@ class TemperatureController
 				catch( Exception e )
 				{
 					mw.WriteMessage("Error getting message queue::" + e );
-					try {
-						Thread.sleep(Robust.WAITING_TIME_FOR_RESTART_MSG_MGR);
-						em = Robust.newMsgMgr();
-					}catch (InterruptedException e1){
-						e1.printStackTrace();
-					} catch (RemoteException e1) {
-						//do nothing retry again
-					}
+					em = Robust.sleepAndReconnect();
 					continue;
 				} // catch
 

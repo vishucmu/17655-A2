@@ -12,6 +12,16 @@ public class Robust {
 
     public static final int WAITING_TIME_FOR_RESTART_MSG_MGR = 300;
 
+    public static MessageManagerInterface sleepAndReconnect(){
+        try {
+            Thread.sleep(Robust.WAITING_TIME_FOR_RESTART_MSG_MGR);
+            return Robust.newMsgMgr();
+        } catch (InterruptedException | RemoteException e){
+            //do nothing and retry again
+        }
+        return null;
+    }
+
     public static MessageManagerInterface newMsgMgr() throws RemoteException {
         // message manager is on the local system
         System.out.println("\n\nAttempting to register on the local machine..." );
@@ -61,11 +71,10 @@ public class Robust {
                     BufferedReader bf = new BufferedReader(new InputStreamReader(es));
                     String tmp = null;
                     try {
-                        System.out.println("========== Error in the new started Java process ========== !");
                         while ((tmp = bf.readLine()) != null) {
+                            System.out.println("========== Error in the new started Java process ========== !");
                             System.out.println(tmp);
                         }
-                        System.out.println("========== Error in the new started Java process ========== !");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

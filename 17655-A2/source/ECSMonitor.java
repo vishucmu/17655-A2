@@ -319,30 +319,18 @@ class ECSMonitor extends Thread
 				// Reset all flag to be false to prepare for next loop.
 				if(TSensorMiss> detection_delay)
 				{
-//					mw.WriteMessage( "Temperature sensor dies.");
-//					Process p = null;
-//					try {
-//						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",msgMgrClzPath,"TemperatureSensor"});
-//						TSensorMiss=0;
-//						mw.WriteMessage( "Temperature sensor restart succeed.");
-//					} catch (IOException e1) {
-//						e1.printStackTrace();
-//					}
-//					TSensorMiss = 0;
+					if(Robust.startNewJava("TemperatureSensor") != null){
+						TSensorMiss=0;
+					}
 				}
 
 				if(HSensorMiss> detection_delay )
 				{
-//					mw.WriteMessage( "Humidity sensor dies.");
-//					Process p = null;
-//					try {
-//						p = Runtime.getRuntime().exec(new String[]{"java","-classpath",msgMgrClzPath,"HumiditySensor"});
-//						HSensorMiss=0;
-//						mw.WriteMessage( "Humidity sensor restart succeed.");
-//					} catch (IOException e1) {
-//						e1.printStackTrace();
-//					}
+					if(Robust.startNewJava("HumiditySensor") != null){
+						HSensorMiss=0;
+					}
 				}
+
 				if(TControllerMiss> detection_delay)
 				{
 					mw.WriteMessage( "Temperature controller dies.");
@@ -350,6 +338,7 @@ class ECSMonitor extends Thread
 						TControllerMiss=0;
 					}
 				}
+				
 				if(HControllerMiss>detection_delay)
 				{
 					mw.WriteMessage( "Humidity controller dies.");

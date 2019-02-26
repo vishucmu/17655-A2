@@ -23,6 +23,8 @@
 ******************************************************************************************************************/
 import InstrumentationPackage.*;
 import MessagePackage.*;
+import Robustness.Robust;
+
 import java.util.*;
 
 class TemperatureSensor
@@ -149,7 +151,25 @@ class TemperatureSensor
 			{
 				// Post the current temperature
 
-				PostTemperature( em, CurrentTemperature );
+				Message msg = new Message( (int) 1, String.valueOf(CurrentTemperature) );
+
+				// Here we send the message to the message manager.
+
+				try
+				{
+					em.SendMessage( msg );
+					//System.out.println( "Sent Temp Message" );
+
+				} // try
+
+				catch (Exception e)
+				{
+					System.out.println( "Error Posting Temperature:: " + e );
+					em = Robust.sleepAndReconnect();
+					continue;
+
+				} // catch
+
 
 				mw.WriteMessage("Current Temperature::  " + CurrentTemperature + " F");
 
@@ -164,6 +184,8 @@ class TemperatureSensor
 				catch( Exception e )
 				{
 					mw.WriteMessage("Error getting message queue::" + e );
+					em = Robust.sleepAndReconnect();
+					continue;
 
 				} // catch
 
@@ -329,44 +351,5 @@ class TemperatureSensor
 		return(r.nextBoolean());
 
 	} // CoinToss
-
-	/***************************************************************************
-	* CONCRETE METHOD:: PostTemperature
-	* Purpose: This method posts the specified temperature value to the
-	* specified message manager. This method assumes an message ID of 1.
-	*
-	* Arguments: MessageManagerInterface ei - this is the messagemanger interface
-	*			 where the message will be posted.
-	*
-	*			 float temperature - this is the temp value.
-	*
-	* Returns: none
-	*
-	* Exceptions: None
-	*
-	***************************************************************************/
-
-	static private void PostTemperature(MessageManagerInterface ei, float temperature )
-	{
-		// Here we create the message.
-
-		Message msg = new Message( (int) 1, String.valueOf(temperature) );
-
-		// Here we send the message to the message manager.
-
-		try
-		{
-			ei.SendMessage( msg );
-			//System.out.println( "Sent Temp Message" );
-
-		} // try
-
-		catch (Exception e)
-		{
-			System.out.println( "Error Posting Temperature:: " + e );
-
-		} // catch
-
-	} // PostTemperature
 
 } // TemperatureSensor
