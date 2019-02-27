@@ -51,7 +51,7 @@ class ECSMonitor extends Thread
 		{
 			// Here we create an message manager interface object. This assumes
 			// that the message manager is on the local machine
-
+			// When doing MessageQueue registration, pass the message type it will send.
 			em = new MessageManagerInterface(MessageType.Monitor);
 
 		}
@@ -102,15 +102,16 @@ class ECSMonitor extends Thread
 
 		long maxOffLineTime = 10000;
 
-		long tempMsgQId = -1;
-		long humiMsgQId = -1;
-		long tempCtrlMsgQId = -1;
-		long humiCtrlMsgQId = -1;
+		long tempMsgQId = -1; //Used to record the MessageQueueID of the primary temperature sensor.
+		long humiMsgQId = -1; //Used to record the current MessageQueueID of the primary humidity sensor.
+		long tempCtrlMsgQId = -1; //Used to record the current MessageQueueID of the primary temperature controller.
+		long humiCtrlMsgQId = -1; //Used to record the current MessageQueueID of the primary humidity controller.
 
-		long tempReadingTime = 0;
-		long humiReadingTime = 0;
-		long tempCtrlAliveTime = 0;
-		long humiCtrlAliveTime = 0;
+		long tempReadingTime = 0; // last time of temperature update
+		long humiReadingTime = 0; //last time of humidity update
+		long tempCtrlAliveTime = 0; // last time of receiving confirm message from temperature controller
+		long humiCtrlAliveTime = 0; // last time of receiving confirm message from humidity controller
+
 
 
 		if (em != null)
@@ -143,6 +144,7 @@ class ECSMonitor extends Thread
 			/********************************************************************
 			** Here we start the main simulation loop
 			*********************************************************************/
+			//initialize the last reading time.
 			tempReadingTime = System.currentTimeMillis();
 			humiReadingTime = System.currentTimeMillis();
 			tempCtrlAliveTime = System.currentTimeMillis();
@@ -159,15 +161,17 @@ class ECSMonitor extends Thread
 				} // try
 				catch( Exception e )
 				{
+					// if failed to get message Queue, it means probably the MessageManager failed.
 					mw.WriteMessage("Error getting message queue::" + e );
 					mw.WriteMessage("Detected MessageManager lost connected, trying to restart MessageManager ... ");
 					mw.WriteMessage("...");
-					//restart here:
+					//restart the Message Manager here:
 					Process p = Robust.startNewJava("MessageManager");
 					if(p.isAlive()){
 						System.out.println("New MessageManager has been restart up!");
 						try {
 							Thread.sleep(Robust.WAITING_TIME_FOR_RESTART_MSG_MGR);
+							// Reconnect to the new Message Manager
 							em = Robust.newMsgMgr(MessageType.Monitor);
 						}catch (InterruptedException e1){
 							e1.printStackTrace();
@@ -195,8 +199,10 @@ class ECSMonitor extends Thread
 					// Temperature reading
 					if ( Msg.GetMessageId() == MessageType.TempReading.getValue() )
 					{
-
+						// if receive the current temperature update
+						// update last temperature reading time.
 						tempReadingTime = System.currentTimeMillis();
+						// and record the messageQueue Id of temperature sensor.
 						tempMsgQId = Msg.GetSenderId();
 						try
 						{
@@ -215,8 +221,9 @@ class ECSMonitor extends Thread
 					// Humidity Sensor reading
 					if ( Msg.GetMessageId() == MessageType.HumiReading.getValue() ) // Humidity reading
 					{
-
+						// update last humidity reading time.
 						humiReadingTime = System.currentTimeMillis();
+						// and record the messageQueue Id of humidity sensor.
 						humiMsgQId = Msg.GetSenderId();
 
 						System.out.println("Got humi reading");
@@ -239,14 +246,18 @@ class ECSMonitor extends Thread
 					// Temperature Controller confirm message
 					if ( Msg.GetMessageId() == MessageType.TempConfirm.getValue() ) //  Check Temperature Controller is alive
 					{
+						// update last temperature controller confirm time.
 						tempCtrlMsgQId = Msg.GetSenderId();
+						// and record the messageQueue Id of temperature controller.
 						tempCtrlAliveTime = System.currentTimeMillis();
 					}
 
 					// Humidity Controller confirm message
 					if ( Msg.GetMessageId() == MessageType.HumiConfirm.getValue() ) //  Check Humidity Controller is alive
 					{
+						// update last humidity controller confirm time.
 						humiCtrlMsgQId = Msg.GetSenderId();
+						// and record the messageQueue Id of humidity controller.
 						humiCtrlAliveTime = System.currentTimeMillis();
 					}
 
@@ -286,9 +297,13 @@ class ECSMonitor extends Thread
 
 				long currentTime = System.currentTimeMillis();
 				//Dead detection for temperature sensor
+				//if the time difference between last reading time and current time
+				//exceeds the maxofflinetime(like 10 seconds), assume the Primary component has died.
 				if (currentTime - tempReadingTime > maxOffLineTime){
 					mw.WriteMessage("One Temperature Sensor Died.");
 					try {
+						// deactivate the primary temperature sensor.
+						// And activate the standby temperature sensor.
 						long qId = em.DeactivateMessageQueue(tempMsgQId);
 						if (qId != -1){
 							mw.WriteMessage("Another Temperature Sensor on queue "+qId +" has taken over successfully ! ");
