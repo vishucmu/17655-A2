@@ -156,24 +156,21 @@ public class MessageManager extends UnicastRemoteObject implements RMIMessageMan
 
 	synchronized public void SendMessage(Message m ) throws RemoteException
 	{
-		MessageQueue mq;
 
 		//if the sender is from a ready queue, message won't be boardcast
+		for(MessageQueue q: MessageQueueList){
+			if(q.GetId() == m.GetSenderId() && q.getQueueState() != QueueState.Active){
+				return;
+			}
+		}
+
+		MessageQueue mq;
 
 		// For every queue on the list, add the message.
 
 		for ( int i = 0; i < MessageQueueList.size(); i++ )
 		{
 			mq = MessageQueueList.get(i);
-
-			// Only active queue can send message
-			if (mq.getQueueState() != QueueState.Active){
-				System.out.println("queue type" + mq.getMsgType()+" wont be delievered");
-				continue;
-			}
-
-			System.out.println("sending to queue: " + mq.getMsgType()+ " msg: " + m.GetMessage()+" senderId: " + m.GetSenderId() + "msgId"+m.GetMessageId());
-
 			mq.AddMessage(m);
 			MessageQueueList.set(i, mq);
 

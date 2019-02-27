@@ -40,7 +40,7 @@ class TemperatureSensor
 		boolean ChillerState = false;	// Chiller state: false == off, true == on
 		float CurrentTemperature;		// Current simulated ambient room temperature
 		float DriftValue;				// The amount of temperature gained or lost
-		int	Delay = 25000;				// The loop delay (2.5 seconds)
+		int	Delay = 2500;				// The loop delay (2.5 seconds)
 		boolean Done = false;			// Loop termination flag
 
 		/////////////////////////////////////////////////////////////////////////////////

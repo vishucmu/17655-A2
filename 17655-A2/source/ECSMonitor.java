@@ -95,12 +95,12 @@ class ECSMonitor extends Thread
 		int MsgId = 0;					// User specified message ID
 		float CurrentTemperature = 0;	// Current temperature as reported by the temperature sensor
 		float CurrentHumidity= 0;		// Current relative humidity as reported by the humidity sensor
-		int	Delay = 10000;				// The loop delay (1 second)
+		int	Delay = 1000;				// The loop delay (1 second)
 		boolean Done = false;			// Loop termination flag
 		boolean ON = true;				// Used to turn on heaters, chillers, humidifiers, and dehumidifiers
 		boolean OFF = false;			// Used to turn off heaters, chillers, humidifiers, and dehumidifiers
 
-		long maxOffLineTime = 7000;
+		long maxOffLineTime = 20000;
 
 		long tempMsgQId = -1;
 		long tempReadingTime = 0;
@@ -139,8 +139,8 @@ class ECSMonitor extends Thread
 			/********************************************************************
 			** Here we start the main simulation loop
 			*********************************************************************/
-
 			tempReadingTime = System.currentTimeMillis();
+
 			while (!Done)
 			{
 				// Here we get our message queue from the message manager
@@ -195,6 +195,7 @@ class ECSMonitor extends Thread
 				int qlen = eq.GetSize();
 
 				long lobei = System.currentTimeMillis();
+
 				for ( int i = 0; i < qlen; i++ )
 				{
 					Msg = eq.GetMessage();
