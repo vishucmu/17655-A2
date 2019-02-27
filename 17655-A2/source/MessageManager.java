@@ -239,6 +239,10 @@ public class MessageManager extends UnicastRemoteObject implements RMIMessageMan
 			}
 		}
 
+		if (q == null){
+			return;
+		}
+
 		//unregister the message queue
 		UnRegister(MsgQID);
 		//find a ready queue to active

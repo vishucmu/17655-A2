@@ -140,6 +140,7 @@ class ECSMonitor extends Thread
 			** Here we start the main simulation loop
 			*********************************************************************/
 
+			tempReadingTime = System.currentTimeMillis();
 			while (!Done)
 			{
 				// Here we get our message queue from the message manager
