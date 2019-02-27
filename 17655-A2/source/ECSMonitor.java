@@ -268,7 +268,7 @@ class ECSMonitor extends Thread
 				if (currentTime - tempReadingTime > maxOffLineTime){
 					mw.WriteMessage("Temperature Sensor Died.");
 					try {
-						em.DeactiveMessageQueue(tempMsgQId);
+						em.DeactivateMessageQueue(tempMsgQId);
 					} catch (RemoteException e) {
 						e.printStackTrace();
 						continue;

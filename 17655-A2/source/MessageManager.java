@@ -84,6 +84,15 @@ public class MessageManager extends UnicastRemoteObject implements RMIMessageMan
 		// Create a new queue and add it to the list of message queues.
 
 		MessageQueue mq = new MessageQueue(type);
+
+		// Only one queue of a message type can be active.
+		for (MessageQueue q: MessageQueueList){
+			if (q.getMsgType() == type){
+				mq.setQueueState(QueueState.Ready);
+				break;
+			}
+		}
+
 		MessageQueueList.add( mq );
 
 		l.DisplayStatistics( "Register message. Issued ID = " + mq.GetId() );
@@ -156,6 +165,12 @@ public class MessageManager extends UnicastRemoteObject implements RMIMessageMan
 		for ( int i = 0; i < MessageQueueList.size(); i++ )
 		{
 			mq = MessageQueueList.get(i);
+
+			// Only active queue can send message
+			if (mq.getQueueState() != QueueState.Active){
+				continue;
+			}
+
 			mq.AddMessage(m);
 			MessageQueueList.set(i, mq);
 
@@ -213,13 +228,26 @@ public class MessageManager extends UnicastRemoteObject implements RMIMessageMan
 	} // GetMessageList
 
 
-	synchronized public void DeactiveMessageQueue(long MsgQID) throws java.rmi.RemoteException{
+	synchronized public void DeactivateMessageQueue(long MsgQID) throws java.rmi.RemoteException{
+
+		//find the queue need to be deactivated.
+		MessageQueue q = null;
+		for(MessageQueue queue: MessageQueueList){
+			if (queue.GetId() == MsgQID){
+				q = queue;
+				break;
+			}
+		}
 
 		//unregister the message queue
 		UnRegister(MsgQID);
 		//find a ready queue to active
-
-
+		for(MessageQueue queue: MessageQueueList){
+			if(q.getMsgType() == queue.getMsgType() && q.GetId() != queue.GetId()){
+				queue.setQueueState(QueueState.Active);
+				break;
+			}
+		}
 	}
 
 	/***************************************************************************

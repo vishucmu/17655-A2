@@ -399,8 +399,8 @@ public class MessageManagerInterface
 
 	} // UnRegister
 
-	public void DeactiveMessageQueue(long queueIDWillBeDeactived) throws java.rmi.RemoteException{
-		em.DeactiveMessageQueue(queueIDWillBeDeactived);
+	public void DeactivateMessageQueue(long queueIDWillBeDeactived) throws java.rmi.RemoteException{
+		em.DeactivateMessageQueue(queueIDWillBeDeactived);
 	}
 
 } // MessageManagerInterface
