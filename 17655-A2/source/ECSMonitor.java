@@ -100,9 +100,13 @@ class ECSMonitor extends Thread
 		boolean ON = true;				// Used to turn on heaters, chillers, humidifiers, and dehumidifiers
 		boolean OFF = false;			// Used to turn off heaters, chillers, humidifiers, and dehumidifiers
 
-		long maxOffLineTime = 20000;
+		long maxOffLineTime = 10000;
 
 		long tempMsgQId = -1;
+		long humiMsgQId = -1;
+		long tempCtrlMsgQId = -1;
+		long humiCtrlMsgQId = -1;
+
 		long tempReadingTime = 0;
 		long humiReadingTime = 0;
 		long tempCtrlAliveTime = 0;
@@ -140,32 +144,28 @@ class ECSMonitor extends Thread
 			** Here we start the main simulation loop
 			*********************************************************************/
 			tempReadingTime = System.currentTimeMillis();
+			humiReadingTime = System.currentTimeMillis();
+			tempCtrlAliveTime = System.currentTimeMillis();
+			humiCtrlAliveTime = System.currentTimeMillis();
 
 			while (!Done)
 			{
 				// Here we get our message queue from the message manager
 
-				System.out.println("=========== Performance Test ==============");
-				long begin = System.currentTimeMillis();
-				long end = 0;
 				try
 				{
 					eq = em.GetMessageQueue();
 
-					end = System.currentTimeMillis();
-					System.out.println("=========== GetMessageQueue: "+(end - begin)+"  ==============");
-					begin = end;
-
 				} // try
 				catch( Exception e )
 				{
-					begin = System.currentTimeMillis();
-
 					mw.WriteMessage("Error getting message queue::" + e );
+					mw.WriteMessage("Detected MessageManager lost connected, trying to restart MessageManager ... ");
+					mw.WriteMessage("...");
 					//restart here:
 					Process p = Robust.startNewJava("MessageManager");
-					System.out.println(p.isAlive());
 					if(p.isAlive()){
+						System.out.println("New MessageManager has been restart up!");
 						try {
 							Thread.sleep(Robust.WAITING_TIME_FOR_RESTART_MSG_MGR);
 							em = Robust.newMsgMgr(MessageType.Monitor);
@@ -175,11 +175,6 @@ class ECSMonitor extends Thread
 							//do nothing and retry
 						}
 					}
-
-					end = System.currentTimeMillis();
-					System.out.println("=========== Exception Handling: "+(end - begin)+"  ==============");
-					begin = end;
-
 					continue;
 				} // catch
 
@@ -193,17 +188,13 @@ class ECSMonitor extends Thread
 				// as it would in reality.
 
 				int qlen = eq.GetSize();
-
-				long lobei = System.currentTimeMillis();
-
 				for ( int i = 0; i < qlen; i++ )
 				{
 					Msg = eq.GetMessage();
 
-					if ( Msg.GetMessageId() == MessageType.TempReading.getValue() ) // Temperature reading
+					// Temperature reading
+					if ( Msg.GetMessageId() == MessageType.TempReading.getValue() )
 					{
-						begin = System.currentTimeMillis();
-						System.out.println("Got temp reading");
 
 						tempReadingTime = System.currentTimeMillis();
 						tempMsgQId = Msg.GetSenderId();
@@ -219,16 +210,14 @@ class ECSMonitor extends Thread
 
 						} // catch
 
-						end = System.currentTimeMillis();
-						System.out.println("=========== Temp Reading: "+(end - begin)+"  ==============");
-						begin = end;
-
 					} // if
 
+					// Humidity Sensor reading
 					if ( Msg.GetMessageId() == MessageType.HumiReading.getValue() ) // Humidity reading
 					{
-						begin = System.currentTimeMillis();
+
 						humiReadingTime = System.currentTimeMillis();
+						humiMsgQId = Msg.GetSenderId();
 
 						System.out.println("Got humi reading");
 						try
@@ -244,32 +233,21 @@ class ECSMonitor extends Thread
 
 						} // catch
 
-						end = System.currentTimeMillis();
-						System.out.println("=========== Humidity Reading: "+(end - begin)+"  ==============");
-						begin = end;
-
 					} // if
 
-					if (Msg.GetMessageId() == MessageType.HumiAction.getValue()) {
-						System.out.println("Got humi action");
-					}
 
-					if (Msg.GetMessageId() == MessageType.TempAction.getValue()) {
-						System.out.println("Got temp action");
-					}
-
-
-
-					if ( Msg.GetMessageId() == -5 ) //  Check Temperature Controller is alive
+					// Temperature Controller confirm message
+					if ( Msg.GetMessageId() == MessageType.TempConfirm.getValue() ) //  Check Temperature Controller is alive
 					{
+						tempCtrlMsgQId = Msg.GetSenderId();
 						tempCtrlAliveTime = System.currentTimeMillis();
-						System.out.println("Got temp control");
 					}
 
-					if ( Msg.GetMessageId() == -4 ) //  Check Humidity Controller is alive
+					// Humidity Controller confirm message
+					if ( Msg.GetMessageId() == MessageType.HumiConfirm.getValue() ) //  Check Humidity Controller is alive
 					{
+						humiCtrlMsgQId = Msg.GetSenderId();
 						humiCtrlAliveTime = System.currentTimeMillis();
-						System.out.println("Got humi control");
 					}
 
 					// If the message ID == 99 then this is a signal that the simulation
@@ -278,7 +256,6 @@ class ECSMonitor extends Thread
 
 					if ( Msg.GetMessageId() == 99 )
 					{
-						begin = System.currentTimeMillis();
 						Done = true;
 
 						try
@@ -301,39 +278,69 @@ class ECSMonitor extends Thread
 						hi.dispose();
 						ti.dispose();
 
-						end = System.currentTimeMillis();
-						System.out.println("=========== 99 Signal: "+(end - begin)+"  ==============");
-						begin = end;
-
 					} // if
 
 				} // for
 
-				long loend = System.currentTimeMillis();
-
-
-				System.out.println("loop time: " +(loend - lobei));
-
 				mw.WriteMessage("Temperature:: " + CurrentTemperature + "F  Humidity:: " + CurrentHumidity );
 
 				long currentTime = System.currentTimeMillis();
-
-				System.out.println("Temp vs current: " + tempReadingTime + " < >" + currentTime);
-
+				//Dead detection for temperature sensor
 				if (currentTime - tempReadingTime > maxOffLineTime){
 					mw.WriteMessage("One Temperature Sensor Died.");
 					try {
-						System.out.println("deactivate");
 						long qId = em.DeactivateMessageQueue(tempMsgQId);
 						if (qId != -1){
 							mw.WriteMessage("Another Temperature Sensor on queue "+qId +" has taken over successfully ! ");
 						}
+						tempReadingTime = currentTime;
 					} catch (RemoteException e) {
 						e.printStackTrace();
-						continue;
 					}
-					tempReadingTime = currentTime;
 				}
+
+				//Dead detection for humidity sensor
+				if (currentTime - humiReadingTime > maxOffLineTime){
+					mw.WriteMessage("One Humidity Sensor Died.");
+					try {
+						long qId = em.DeactivateMessageQueue(humiMsgQId);
+						if (qId != -1){
+							mw.WriteMessage("Another Humidity Sensor on queue "+qId +" has taken over successfully ! ");
+						}
+						humiReadingTime = currentTime;
+					} catch (RemoteException e) {
+						e.printStackTrace();
+					}
+				}
+
+				//Dead detection for temperature controller
+				if (currentTime - tempCtrlAliveTime > maxOffLineTime){
+					mw.WriteMessage("One Temperature Controller Died.");
+					try {
+						long qId = em.DeactivateMessageQueue(tempCtrlMsgQId);
+						if (qId != -1){
+							mw.WriteMessage("Another Temperature Controller on queue "+qId +" has taken over successfully ! ");
+						}
+						tempCtrlAliveTime = currentTime;
+					} catch (RemoteException e) {
+						e.printStackTrace();
+					}
+				}
+
+				//Dead detection for humidity controller
+				if (currentTime - humiCtrlAliveTime > maxOffLineTime){
+					mw.WriteMessage("One Humidity Controller Died.");
+					try {
+						long qId = em.DeactivateMessageQueue(humiCtrlMsgQId);
+						if (qId != -1){
+							mw.WriteMessage("Another Humidity Controller on queue "+qId +" has taken over successfully ! ");
+						}
+						humiCtrlAliveTime = currentTime;
+					} catch (RemoteException e) {
+						e.printStackTrace();
+					}
+				}
+
 
 				// Check temperature and effect control as necessary
 
