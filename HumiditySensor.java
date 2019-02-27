@@ -1,26 +1,26 @@
 /******************************************************************************************************************
-* File:HumiditySensor.java
-* Course: 17655
-* Project: Assignment A2
-* Copyright: Copyright (c) 2009 Carnegie Mellon University
-* Versions:
-*	1.0 March 2009 - Initial rewrite of original assignment 2 (ajl).
-*
-* Description:
-*
-* This class simulates a humidity sensor. It polls the message manager for messages corresponding to changes in state
-* of the humidifier or dehumidifier and reacts to them by trending the relative humidity up or down. The current
-* relative humidity is posted to the message manager.
-*
-* Parameters: IP address of the message manager (on command line). If blank, it is assumed that the message manager is
-* on the local machine.
-*
-* Internal Methods:
-*	float GetRandomNumber()
-*	boolean CoinToss()
-*   void PostHumidity(MessageManagerInterface ei, float humidity )
-*
-******************************************************************************************************************/
+ * File:HumiditySensor.java
+ * Course: 17655
+ * Project: Assignment A2
+ * Copyright: Copyright (c) 2009 Carnegie Mellon University
+ * Versions:
+ *  1.0 March 2009 - Initial rewrite of original assignment 2 (ajl).
+ *
+ * Description:
+ *
+ * This class simulates a humidity sensor. It polls the message manager for messages corresponding to changes in state
+ * of the humidifier or dehumidifier and reacts to them by trending the relative humidity up or down. The current
+ * relative humidity is posted to the message manager.
+ *
+ * Parameters: IP address of the message manager (on command line). If blank, it is assumed that the message manager is
+ * on the local machine.
+ *
+ * Internal Methods:
+ *  float GetRandomNumber()
+ *  boolean CoinToss()
+ *   void PostHumidity(MessageManagerInterface ei, float humidity )
+ *
+ ******************************************************************************************************************/
 import InstrumentationPackage.*;
 import MessagePackage.*;
 import Robustness.Robust;
@@ -33,17 +33,17 @@ class HumiditySensor
 
 	public static void main(String args[])
 	{
-		String MsgMgrIP;					// Message Manager IP address
-		Message Msg = null;					// Message object
-		MessageQueue eq = null;				// Message Queue
-		int MsgId = 0;						// User specified message ID
-		MessageManagerInterface em = null;	// Interface object to the message manager
-		boolean HumidifierState = false;	// Humidifier state: false == off, true == on
-		boolean DehumidifierState = false;	// Dehumidifier state: false == off, true == on
-		float RelativeHumidity;				// Current simulated ambient room humidity
-		float DriftValue;					// The amount of humidity gained or lost
-		int	Delay = 2500;					// The loop delay (2.5 seconds)
-		boolean Done = false;				// Loop termination flag
+		String MsgMgrIP;               // Message Manager IP address
+		Message Msg = null;                // Message object
+		MessageQueue eq = null;             // Message Queue
+		int MsgId = 0;                // User specified message ID
+		MessageManagerInterface em = null; // Interface object to the message manager
+		boolean HumidifierState = false;   // Humidifier state: false == off, true == on
+		boolean DehumidifierState = false; // Dehumidifier state: false == off, true == on
+		float RelativeHumidity;             // Current simulated ambient room humidity
+		float DriftValue;              // The amount of humidity gained or lost
+		int    Delay = 2500;              // The loop delay (2.5 seconds)
+		boolean Done = false;           // Loop termination flag
 
 
 
@@ -51,8 +51,8 @@ class HumiditySensor
 		// Get the IP address of the message manager
 		/////////////////////////////////////////////////////////////////////////////////
 
- 		if ( args.length == 0 )
- 		{
+		if ( args.length == 0 )
+		{
 			// message manager is on the local system
 
 			System.out.println("\n\nAttempting to register on the local machine..." );
@@ -61,7 +61,7 @@ class HumiditySensor
 			{
 				// Here we create an message manager interface object. This assumes
 				// that the message manager is on the local machine
-
+				// register the message queue and send the message type the component will send.
 				em = new MessageManagerInterface(MessageType.HumiReading);
 			}
 
@@ -83,7 +83,7 @@ class HumiditySensor
 			{
 				// Here we create an message manager interface object. This assumes
 				// that the message manager is NOT on the local machine
-
+				// register the message queue and send the message type the component will send.
 				em = new MessageManagerInterface(MessageType.HumiReading,MsgMgrIP);
 			}
 
@@ -104,23 +104,23 @@ class HumiditySensor
 			// We create a message window. Note that we place this panel about 1/2 across
 			// and 2/3s down the screen
 
-			float WinPosX = 0.5f; 	//This is the X position of the message window in terms
-									//of a percentage of the screen height
-			float WinPosY = 0.60f;	//This is the Y position of the message window in terms
-								 	//of a percentage of the screen height
+			float WinPosX = 0.5f;  //This is the X position of the message window in terms
+			//of a percentage of the screen height
+			float WinPosY = 0.60f; //This is the Y position of the message window in terms
+			//of a percentage of the screen height
 
 			MessageWindow mw = new MessageWindow("Humidity Sensor", WinPosX, WinPosY);
 
 			mw.WriteMessage("Registered with the message manager." );
 
-	    	try
-	    	{
+			try
+			{
 				mw.WriteMessage("   Participant id: " + em.GetMyId() );
 				mw.WriteMessage("   Registration Time: " + em.GetRegistrationTime() );
 
 			} // try
 
-	    	catch (Exception e)
+			catch (Exception e)
 			{
 				mw.WriteMessage("Error:: " + e);
 
@@ -144,8 +144,8 @@ class HumiditySensor
 			// mw.WriteMessage("   Drift Value Set:: " + DriftValue ); // Used to debug the random drift values
 
 			/********************************************************************
-			** Here we start the main simulation loop
-			*********************************************************************/
+			 ** Here we start the main simulation loop
+			 *********************************************************************/
 
 			mw.WriteMessage("Beginning Simulation... ");
 
@@ -182,7 +182,9 @@ class HumiditySensor
 
 				catch( Exception e )
 				{
+					// means the message Manager probably died.
 					mw.WriteMessage("Error getting message queue::" + e );
+					//wait for a while for the message manager to restart and then reconnect
 					em = Robust.sleepAndReconnect(MessageType.HumiReading);
 					continue;
 				} // catch
@@ -241,15 +243,15 @@ class HumiditySensor
 						{
 							em.UnRegister();
 
-				    	} // try
+						} // try
 
-				    	catch (Exception e)
-				    	{
+						catch (Exception e)
+						{
 							mw.WriteMessage("Error unregistering: " + e);
 
-				    	} // catch
+						} // catch
 
-				    	mw.WriteMessage("\n\nSimulation Stopped. \n");
+						mw.WriteMessage("\n\nSimulation Stopped. \n");
 
 					} // if
 
@@ -301,17 +303,17 @@ class HumiditySensor
 	} // main
 
 	/***************************************************************************
-	* CONCRETE METHOD:: GetRandomNumber
-	* Purpose: This method provides the simulation with random floating point
-	*		   humidity values between 0.1 and 0.9.
-	*
-	* Arguments: None.
-	*
-	* Returns: float
-	*
-	* Exceptions: None
-	*
-	***************************************************************************/
+	 * CONCRETE METHOD:: GetRandomNumber
+	 * Purpose: This method provides the simulation with random floating point
+	 *        humidity values between 0.1 and 0.9.
+	 *
+	 * Arguments: None.
+	 *
+	 * Returns: float
+	 *
+	 * Exceptions: None
+	 *
+	 ***************************************************************************/
 
 	static private float GetRandomNumber()
 	{
@@ -323,24 +325,24 @@ class HumiditySensor
 		while( Val < 0.1 )
 		{
 			Val = r.nextFloat();
-	 	}
+		}
 
 		return( Val.floatValue() );
 
 	} // GetRandomNumber
 
 	/***************************************************************************
-	* CONCRETE METHOD:: CoinToss
-	* Purpose: This method provides a random true or false value used for
-	* determining the positiveness or negativeness of the drift value.
-	*
-	* Arguments: None.
-	*
-	* Returns: boolean
-	*
-	* Exceptions: None
-	*
-	***************************************************************************/
+	 * CONCRETE METHOD:: CoinToss
+	 * Purpose: This method provides a random true or false value used for
+	 * determining the positiveness or negativeness of the drift value.
+	 *
+	 * Arguments: None.
+	 *
+	 * Returns: boolean
+	 *
+	 * Exceptions: None
+	 *
+	 ***************************************************************************/
 
 	static private boolean CoinToss()
 	{
@@ -350,3 +352,4 @@ class HumiditySensor
 
 	} // CoinToss
 } // Humidity Sensor
+

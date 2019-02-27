@@ -1,26 +1,26 @@
 /******************************************************************************************************************
-* File:TemperatureSensor.java
-* Course: 17655
-* Project: Assignment A2
-* Copyright: Copyright (c) 2009 Carnegie Mellon University
-* Versions:
-*	1.0 March 2009 - Initial rewrite of original assignment 2 (ajl).
-*
-* Description:
-*
-* This class simulates a temperature sensor. It polls the message manager for messages corresponding to changes in state
-* of the heater or chiller and reacts to them by trending the ambient temperature up or down. The current ambient
-* room temperature is posted to the message manager.
-*
-* Parameters: IP address of the message manager (on command line). If blank, it is assumed that the message manager is
-* on the local machine.
-*
-* Internal Methods:
-*	float GetRandomNumber()
-*	boolean CoinToss()
-*   void PostTemperature(MessageManagerInterface ei, float temperature )
-*
-******************************************************************************************************************/
+ * File:TemperatureSensor.java
+ * Course: 17655
+ * Project: Assignment A2
+ * Copyright: Copyright (c) 2009 Carnegie Mellon University
+ * Versions:
+ *  1.0 March 2009 - Initial rewrite of original assignment 2 (ajl).
+ *
+ * Description:
+ *
+ * This class simulates a temperature sensor. It polls the message manager for messages corresponding to changes in state
+ * of the heater or chiller and reacts to them by trending the ambient temperature up or down. The current ambient
+ * room temperature is posted to the message manager.
+ *
+ * Parameters: IP address of the message manager (on command line). If blank, it is assumed that the message manager is
+ * on the local machine.
+ *
+ * Internal Methods:
+ *  float GetRandomNumber()
+ *  boolean CoinToss()
+ *   void PostTemperature(MessageManagerInterface ei, float temperature )
+ *
+ ******************************************************************************************************************/
 import InstrumentationPackage.*;
 import MessagePackage.*;
 import Robustness.Robust;
@@ -31,24 +31,24 @@ class TemperatureSensor
 {
 	public static void main(String args[])
 	{
-		String MsgMgrIP;				// Message Manager IP address
-		Message Msg = null;				// Message object
-		MessageQueue eq = null;			// Message Queue
-		int MsgId = 0;					// User specified message ID
+		String MsgMgrIP;            // Message Manager IP address
+		Message Msg = null;             // Message object
+		MessageQueue eq = null;          // Message Queue
+		int MsgId = 0;             // User specified message ID
 		MessageManagerInterface em = null;// Interface object to the message manager
-		boolean HeaterState = false;	// Heater state: false == off, true == on
-		boolean ChillerState = false;	// Chiller state: false == off, true == on
-		float CurrentTemperature;		// Current simulated ambient room temperature
-		float DriftValue;				// The amount of temperature gained or lost
-		int	Delay = 2500;				// The loop delay (2.5 seconds)
-		boolean Done = false;			// Loop termination flag
+		boolean HeaterState = false;   // Heater state: false == off, true == on
+		boolean ChillerState = false;  // Chiller state: false == off, true == on
+		float CurrentTemperature;     // Current simulated ambient room temperature
+		float DriftValue;           // The amount of temperature gained or lost
+		int    Delay = 2500;           // The loop delay (2.5 seconds)
+		boolean Done = false;        // Loop termination flag
 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Get the IP address of the message manager
 		/////////////////////////////////////////////////////////////////////////////////
 
- 		if ( args.length == 0 )
- 		{
+		if ( args.length == 0 )
+		{
 			// message manager is on the local system
 
 			System.out.println("\n\nAttempting to register on the local machine..." );
@@ -57,7 +57,7 @@ class TemperatureSensor
 			{
 				// Here we create an message manager interface object. This assumes
 				// that the message manager is on the local machine
-
+				// register the message queue and send the message type the component will send.
 				em = new MessageManagerInterface(MessageType.TempReading);
 			}
 
@@ -101,23 +101,23 @@ class TemperatureSensor
 			// We create a message window. Note that we place this panel about 1/2 across
 			// and 1/3 down the screen
 
-			float WinPosX = 0.5f; 	//This is the X position of the message window in terms
-								 	//of a percentage of the screen height
-			float WinPosY = 0.3f; 	//This is the Y position of the message window in terms
-								 	//of a percentage of the screen height
+			float WinPosX = 0.5f;  //This is the X position of the message window in terms
+			//of a percentage of the screen height
+			float WinPosY = 0.3f;  //This is the Y position of the message window in terms
+			//of a percentage of the screen height
 
 			MessageWindow mw = new MessageWindow("Temperature Sensor", WinPosX, WinPosY );
 
 			mw.WriteMessage("Registered with the message manager." );
 
-	    	try
-	    	{
+			try
+			{
 				mw.WriteMessage("   Participant id: " + em.GetMyId() );
 				mw.WriteMessage("   Registration Time: " + em.GetRegistrationTime() );
 
 			} // try
 
-	    	catch (Exception e)
+			catch (Exception e)
 			{
 				mw.WriteMessage("Error:: " + e);
 
@@ -141,8 +141,8 @@ class TemperatureSensor
 			// mw.WriteMessage("   Drift Value Set:: " + DriftValue ); // used to debug random temperature drift
 
 			/********************************************************************
-			** Here we start the main simulation loop
-			*********************************************************************/
+			 ** Here we start the main simulation loop
+			 *********************************************************************/
 
 			mw.WriteMessage("Beginning Simulation... ");
 
@@ -164,7 +164,9 @@ class TemperatureSensor
 
 				catch (Exception e)
 				{
+					// means the message Manager probably died.
 					System.out.println( "Error Posting Temperature:: " + e );
+					//wait for a while for the message manager to restart and then reconnect
 					em = Robust.sleepAndReconnect(MessageType.TempReading);
 					continue;
 
@@ -243,15 +245,15 @@ class TemperatureSensor
 						{
 							em.UnRegister();
 
-				    	} // try
+						} // try
 
-				    	catch (Exception e)
-				    	{
+						catch (Exception e)
+						{
 							mw.WriteMessage("Error unregistering: " + e);
 
-				    	} // catch
+						} // catch
 
-				    	mw.WriteMessage("\n\nSimulation Stopped. \n");
+						mw.WriteMessage("\n\nSimulation Stopped. \n");
 
 					} // if
 
@@ -303,17 +305,17 @@ class TemperatureSensor
 	} // main
 
 	/***************************************************************************
-	* CONCRETE METHOD:: GetRandomNumber
-	* Purpose: This method provides the simulation with random floating point
-	*		   temperature values between 0.1 and 0.9.
-	*
-	* Arguments: None.
-	*
-	* Returns: float
-	*
-	* Exceptions: None
-	*
-	***************************************************************************/
+	 * CONCRETE METHOD:: GetRandomNumber
+	 * Purpose: This method provides the simulation with random floating point
+	 *        temperature values between 0.1 and 0.9.
+	 *
+	 * Arguments: None.
+	 *
+	 * Returns: float
+	 *
+	 * Exceptions: None
+	 *
+	 ***************************************************************************/
 
 	static private float GetRandomNumber()
 	{
@@ -325,24 +327,24 @@ class TemperatureSensor
 		while( Val < 0.1 )
 		{
 			Val = r.nextFloat();
-	 	}
+		}
 
 		return( Val.floatValue() );
 
 	} // GetRandomNumber
 
 	/***************************************************************************
-	* CONCRETE METHOD:: CoinToss
-	* Purpose: This method provides a random true or false value used for
-	* determining the positiveness or negativeness of the drift value.
-	*
-	* Arguments: None.
-	*
-	* Returns: boolean
-	*
-	* Exceptions: None
-	*
-	***************************************************************************/
+	 * CONCRETE METHOD:: CoinToss
+	 * Purpose: This method provides a random true or false value used for
+	 * determining the positiveness or negativeness of the drift value.
+	 *
+	 * Arguments: None.
+	 *
+	 * Returns: boolean
+	 *
+	 * Exceptions: None
+	 *
+	 ***************************************************************************/
 
 	static private boolean CoinToss()
 	{
@@ -353,3 +355,5 @@ class TemperatureSensor
 	} // CoinToss
 
 } // TemperatureSensor
+
+
