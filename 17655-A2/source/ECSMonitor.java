@@ -52,7 +52,7 @@ class ECSMonitor extends Thread
 			// Here we create an message manager interface object. This assumes
 			// that the message manager is on the local machine
 
-			em = new MessageManagerInterface();
+			em = new MessageManagerInterface(MessageType.Monitor);
 
 		}
 
@@ -76,7 +76,7 @@ class ECSMonitor extends Thread
 			// Here we create an message manager interface object. This assumes
 			// that the message manager is NOT on the local machine
 
-			em = new MessageManagerInterface( MsgMgrIP );
+			em = new MessageManagerInterface(MessageType.Monitor, MsgMgrIP);
 		}
 
 		catch (Exception e)
@@ -102,6 +102,7 @@ class ECSMonitor extends Thread
 
 		long maxOffLineTime = 10000;
 
+		long tempMsgQId = -1;
 		long tempReadingTime = 0;
 		long humiReadingTime = 0;
 		long tempCtrlAliveTime = 0;
@@ -134,10 +135,7 @@ class ECSMonitor extends Thread
 				System.out.println("Error:: " + e);
 
 			} // catch
-			tempReadingTime = System.currentTimeMillis();
-			humiReadingTime = System.currentTimeMillis();
-			tempCtrlAliveTime = System.currentTimeMillis();
-			humiCtrlAliveTime = System.currentTimeMillis();
+
 			/********************************************************************
 			** Here we start the main simulation loop
 			*********************************************************************/
@@ -160,7 +158,7 @@ class ECSMonitor extends Thread
 					if(p.isAlive()){
 						try {
 							Thread.sleep(Robust.WAITING_TIME_FOR_RESTART_MSG_MGR);
-							em = Robust.newMsgMgr();
+							em = Robust.newMsgMgr(MessageType.Monitor);
 						}catch (InterruptedException e1){
 							e1.printStackTrace();
 						} catch (RemoteException e1) {
@@ -189,6 +187,7 @@ class ECSMonitor extends Thread
 					if ( Msg.GetMessageId() == 1 ) // Temperature reading
 					{
 						tempReadingTime = System.currentTimeMillis();
+						tempMsgQId = Msg.GetSenderId();
 						try
 						{
 							CurrentTemperature = Float.valueOf(Msg.GetMessage()).floatValue();
@@ -263,38 +262,19 @@ class ECSMonitor extends Thread
 
 				} // for
 
+				mw.WriteMessage("Temperature:: " + CurrentTemperature + "F  Humidity:: " + CurrentHumidity );
+
 				long currentTime = System.currentTimeMillis();
 				if (currentTime - tempReadingTime > maxOffLineTime){
 					mw.WriteMessage("Temperature Sensor Died.");
-					if (Robust.startNewJava("TemperatureSensor") != null){
-						tempReadingTime = currentTime;
-						mw.WriteMessage("Temperature Sensor Restarted.");
+					try {
+						em.DeactiveMessageQueue(tempMsgQId);
+					} catch (RemoteException e) {
+						e.printStackTrace();
+						continue;
 					}
+					tempReadingTime = currentTime;
 				}
-				if (currentTime - humiReadingTime > maxOffLineTime){
-					mw.WriteMessage("Humidity Sensor Died.");
-					if(Robust.startNewJava("HumiditySensor") != null){
-						humiReadingTime = currentTime;
-						mw.WriteMessage("Humidity Sensor Restarted.");
-					}
-				}
-				if (currentTime - tempCtrlAliveTime > maxOffLineTime){
-					mw.WriteMessage("Temperature controller Died.");
-					if (Robust.startNewJava("TemperatureController") != null){
-						tempCtrlAliveTime = currentTime;
-						mw.WriteMessage("Temperature controller Restarted.");
-					}
-				}
-				if (currentTime - humiCtrlAliveTime > maxOffLineTime){
-					mw.WriteMessage("Humidity controller Died.");
-					if (Robust.startNewJava("HumidityController") != null){
-						humiCtrlAliveTime = currentTime;
-						mw.WriteMessage("Humidity controller Restarted.");
-					}
-				}
-
-
-				mw.WriteMessage("Temperature:: " + CurrentTemperature + "F  Humidity:: " + CurrentHumidity );
 
 				// Check temperature and effect control as necessary
 

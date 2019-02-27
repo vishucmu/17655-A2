@@ -64,7 +64,7 @@ class HumidityController
 				// Here we create an message manager interface object. This assumes
 				// that the message manager is on the local machine
 
-				em = new MessageManagerInterface();
+				em = new MessageManagerInterface(MessageType.HumiConfirm);
 			}
 
 			catch (Exception e)
@@ -86,7 +86,7 @@ class HumidityController
 				// Here we create an message manager interface object. This assumes
 				// that the message manager is NOT on the local machine
 
-				em = new MessageManagerInterface( MsgMgrIP );
+				em = new MessageManagerInterface(MessageType.HumiConfirm, MsgMgrIP );
 			}
 
 			catch (Exception e)
@@ -151,7 +151,7 @@ class HumidityController
 				catch( Exception e )
 				{
 					mw.WriteMessage("Error getting message queue::" + e );
-					em = Robust.sleepAndReconnect();
+					em = Robust.sleepAndReconnect(MessageType.HumiConfirm);
 					continue;
 				} // catch
 

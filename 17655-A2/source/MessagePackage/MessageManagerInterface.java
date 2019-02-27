@@ -123,7 +123,7 @@ public class MessageManagerInterface
 	*
 	****************************************************************************/
 
-	public MessageManagerInterface() throws LocatingMessageManagerException, RegistrationException, ParticipantAlreadyRegisteredException
+	public MessageManagerInterface(MessageType type) throws LocatingMessageManagerException, RegistrationException, ParticipantAlreadyRegisteredException
 	{
 		// First we check to see if the participant is already registered. If not
 		// we go on with the registration. If the are, we throw an exception.
@@ -144,7 +144,7 @@ public class MessageManagerInterface
 
 		   	try
 		   	{
-				ParticipantId = em.Register();
+				ParticipantId = em.Register(type);
 
 			} // try
 
@@ -177,7 +177,7 @@ public class MessageManagerInterface
 	*
 	****************************************************************************/
 
-	public MessageManagerInterface( String ServerIpAddress ) throws LocatingMessageManagerException,
+	public MessageManagerInterface(MessageType type, String ServerIpAddress ) throws LocatingMessageManagerException,
 	RegistrationException, ParticipantAlreadyRegisteredException
 	{
 		// Assumes that the message manager is on another machine. The user must provide the IP
@@ -201,7 +201,7 @@ public class MessageManagerInterface
 
 		   	try
 		   	{
-				ParticipantId = em.Register();
+				ParticipantId = em.Register(type);
 
 			} // try
 
@@ -398,5 +398,9 @@ public class MessageManagerInterface
 		} // if
 
 	} // UnRegister
+
+	public void DeactiveMessageQueue(long queueIDWillBeDeactived) throws java.rmi.RemoteException{
+		em.DeactiveMessageQueue(queueIDWillBeDeactived);
+	}
 
 } // MessageManagerInterface

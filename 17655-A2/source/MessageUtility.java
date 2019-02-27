@@ -53,7 +53,7 @@ public class MessageUtility
 					// Here we create a message manager interface object. This assumes
 					// that the message manager is on the local machine
 
-					ef = new MessageManagerInterface();
+					ef = new MessageManagerInterface(MessageType.Mix);
 				}
 
 				catch (Exception e)
@@ -71,7 +71,7 @@ public class MessageUtility
 					// Here we create a message manager interface object. This assumes
 					// that the message manager is NOT on the local machine
 
-					ef = new MessageManagerInterface( MsgMgrIP );
+					ef = new MessageManagerInterface(MessageType.Mix, MsgMgrIP);
 				}
 
 				catch (Exception e)

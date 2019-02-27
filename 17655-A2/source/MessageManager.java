@@ -79,11 +79,11 @@ public class MessageManager extends UnicastRemoteObject implements RMIMessageMan
 	*
 	****************************************************************************/
 
-	synchronized public long Register() throws RemoteException
+	synchronized public long Register(MessageType type) throws RemoteException
 	{
 		// Create a new queue and add it to the list of message queues.
 
-		MessageQueue mq = new MessageQueue();
+		MessageQueue mq = new MessageQueue(type);
 		MessageQueueList.add( mq );
 
 		l.DisplayStatistics( "Register message. Issued ID = " + mq.GetId() );
@@ -149,6 +149,8 @@ public class MessageManager extends UnicastRemoteObject implements RMIMessageMan
 	{
 		MessageQueue mq;
 
+		//if the sender is from a ready queue, message won't be boardcast
+
 		// For every queue on the list, add the message.
 
 		for ( int i = 0; i < MessageQueueList.size(); i++ )
@@ -209,6 +211,16 @@ public class MessageManager extends UnicastRemoteObject implements RMIMessageMan
 		return temp;
 
 	} // GetMessageList
+
+
+	synchronized public void DeactiveMessageQueue(long MsgQID) throws java.rmi.RemoteException{
+
+		//unregister the message queue
+		UnRegister(MsgQID);
+		//find a ready queue to active
+
+
+	}
 
 	/***************************************************************************
 	* INNER CLASS:: Logger

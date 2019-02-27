@@ -28,12 +28,16 @@ public class MessageQueue implements Serializable
 	private Vector<Message> MessageList;// This is the list of events associated with a participant
 	private long QueueId;				// This is the participants id
 	private	int ListSize;				// This is the size of the list
+	private MessageType msgType;		// This is the queue's owner's message type;
+	private QueueState queueState;
 
-	public MessageQueue()
+	public MessageQueue(MessageType type)
 	{
 		MessageList = new Vector<Message> (15, 1);
 		Calendar TimeStamp = Calendar.getInstance();
 		QueueId = TimeStamp.getTimeInMillis();
+		this.msgType = type;
+		this.queueState = QueueState.Active;
 		ListSize = 0;
 
 	} // constructor
@@ -159,12 +163,25 @@ public class MessageQueue implements Serializable
 
 	public MessageQueue GetCopy()
 	{
-		MessageQueue mq = new MessageQueue();
+		MessageQueue mq = new MessageQueue(this.msgType);
 		mq.QueueId = QueueId;
+		mq.queueState = queueState;
 		mq.MessageList = (Vector<Message>) MessageList.clone();
 
 		return mq ;
 
 	} // GetCopy
+
+	public MessageType getMsgType() {
+		return msgType;
+	}
+
+	public QueueState getQueueState() {
+		return queueState;
+	}
+
+	public void setQueueState(QueueState queueState) {
+		this.queueState = queueState;
+	}
 
 } // MessageQueue class

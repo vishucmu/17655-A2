@@ -34,7 +34,7 @@ public interface RMIMessageManagerInterface extends Remote
 	*
 	****************************************************************************/
 
-	public long Register() throws java.rmi.RemoteException;
+	public long Register(MessageType type) throws java.rmi.RemoteException;
 
 	/***************************************************************************
 	* INTERFACE:: UnRegister
@@ -80,5 +80,7 @@ public interface RMIMessageManagerInterface extends Remote
 	****************************************************************************/
 
 	public MessageQueue GetMessageQueue(long SenderID) throws java.rmi.RemoteException;
+
+	public void DeactiveMessageQueue(long MsgQID) throws java.rmi.RemoteException;
 
 } // class

@@ -1,29 +1,29 @@
 package Robustness;
 
 import MessagePackage.MessageManagerInterface;
+import MessagePackage.MessageType;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.rmi.Naming;
 import java.rmi.RemoteException;
 
 public class Robust {
 
     public static final int WAITING_TIME_FOR_RESTART_MSG_MGR = 1000;
 
-    public static MessageManagerInterface sleepAndReconnect(){
+    public static MessageManagerInterface sleepAndReconnect(MessageType type){
         try {
             Thread.sleep(Robust.WAITING_TIME_FOR_RESTART_MSG_MGR);
-            return Robust.newMsgMgr();
+            return Robust.newMsgMgr(type);
         } catch (InterruptedException | RemoteException e){
             //do nothing and retry again
         }
         return null;
     }
 
-    public static MessageManagerInterface newMsgMgr() throws RemoteException {
+    public static MessageManagerInterface newMsgMgr(MessageType type) throws RemoteException {
         // message manager is on the local system
         System.out.println("\n\nAttempting to register on the local machine..." );
         try
@@ -31,7 +31,7 @@ public class Robust {
             // Here we create an message manager interface object. This assumes
             // that the message manager is on the local machine
 
-            return new MessageManagerInterface();
+            return new MessageManagerInterface(type);
         }
         catch (Exception e)
         {
@@ -39,7 +39,7 @@ public class Robust {
         } // catch
     }
 
-    public static MessageManagerInterface newMsgMgr(String msgMgrIP) throws RemoteException {
+    public static MessageManagerInterface newMsgMgr(MessageType type, String msgMgrIP) throws RemoteException {
         // message manager is on the local system
         System.out.println("\n\nAttempting to register on the machine:: " + msgMgrIP );
         try
@@ -47,7 +47,7 @@ public class Robust {
             // Here we create an message manager interface object. This assumes
             // that the message manager is on the local machine
 
-            return new MessageManagerInterface(msgMgrIP);
+            return new MessageManagerInterface(type, msgMgrIP);
         }
         catch (Exception e)
         {

@@ -62,7 +62,7 @@ class HumiditySensor
 				// Here we create an message manager interface object. This assumes
 				// that the message manager is on the local machine
 
-				em = new MessageManagerInterface();
+				em = new MessageManagerInterface(MessageType.HumiReading);
 			}
 
 			catch (Exception e)
@@ -84,7 +84,7 @@ class HumiditySensor
 				// Here we create an message manager interface object. This assumes
 				// that the message manager is NOT on the local machine
 
-				em = new MessageManagerInterface( MsgMgrIP );
+				em = new MessageManagerInterface(MessageType.HumiReading,MsgMgrIP);
 			}
 
 			catch (Exception e)
@@ -166,7 +166,7 @@ class HumiditySensor
 				catch (Exception e)
 				{
 					System.out.println( "Error Posting Relative Humidity:: " + e );
-					em = Robust.sleepAndReconnect();
+					em = Robust.sleepAndReconnect(MessageType.HumiReading);
 					continue;
 				} // catch
 
@@ -183,7 +183,7 @@ class HumiditySensor
 				catch( Exception e )
 				{
 					mw.WriteMessage("Error getting message queue::" + e );
-					em = Robust.sleepAndReconnect();
+					em = Robust.sleepAndReconnect(MessageType.HumiReading);
 					continue;
 				} // catch
 
