@@ -168,8 +168,11 @@ public class MessageManager extends UnicastRemoteObject implements RMIMessageMan
 
 			// Only active queue can send message
 			if (mq.getQueueState() != QueueState.Active){
+				System.out.println("queue type" + mq.getMsgType()+" wont be delievered");
 				continue;
 			}
+
+			System.out.println("sending to queue: " + mq.getMsgType()+ " msg: " + m.GetMessage()+" senderId: " + m.GetSenderId() + "msgId"+m.GetMessageId());
 
 			mq.AddMessage(m);
 			MessageQueueList.set(i, mq);

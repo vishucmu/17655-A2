@@ -95,12 +95,12 @@ class ECSMonitor extends Thread
 		int MsgId = 0;					// User specified message ID
 		float CurrentTemperature = 0;	// Current temperature as reported by the temperature sensor
 		float CurrentHumidity= 0;		// Current relative humidity as reported by the humidity sensor
-		int	Delay = 1000;				// The loop delay (1 second)
+		int	Delay = 10000;				// The loop delay (1 second)
 		boolean Done = false;			// Loop termination flag
 		boolean ON = true;				// Used to turn on heaters, chillers, humidifiers, and dehumidifiers
 		boolean OFF = false;			// Used to turn off heaters, chillers, humidifiers, and dehumidifiers
 
-		long maxOffLineTime = 10000;
+		long maxOffLineTime = 7000;
 
 		long tempMsgQId = -1;
 		long tempReadingTime = 0;
@@ -145,13 +145,22 @@ class ECSMonitor extends Thread
 			{
 				// Here we get our message queue from the message manager
 
+				System.out.println("=========== Performance Test ==============");
+				long begin = System.currentTimeMillis();
+				long end = 0;
 				try
 				{
 					eq = em.GetMessageQueue();
 
+					end = System.currentTimeMillis();
+					System.out.println("=========== GetMessageQueue: "+(end - begin)+"  ==============");
+					begin = end;
+
 				} // try
 				catch( Exception e )
 				{
+					begin = System.currentTimeMillis();
+
 					mw.WriteMessage("Error getting message queue::" + e );
 					//restart here:
 					Process p = Robust.startNewJava("MessageManager");
@@ -167,6 +176,10 @@ class ECSMonitor extends Thread
 						}
 					}
 
+					end = System.currentTimeMillis();
+					System.out.println("=========== Exception Handling: "+(end - begin)+"  ==============");
+					begin = end;
+
 					continue;
 				} // catch
 
@@ -181,12 +194,16 @@ class ECSMonitor extends Thread
 
 				int qlen = eq.GetSize();
 
+				long lobei = System.currentTimeMillis();
 				for ( int i = 0; i < qlen; i++ )
 				{
 					Msg = eq.GetMessage();
 
-					if ( Msg.GetMessageId() == 1 ) // Temperature reading
+					if ( Msg.GetMessageId() == MessageType.TempReading.getValue() ) // Temperature reading
 					{
+						begin = System.currentTimeMillis();
+						System.out.println("Got temp reading");
+
 						tempReadingTime = System.currentTimeMillis();
 						tempMsgQId = Msg.GetSenderId();
 						try
@@ -201,11 +218,18 @@ class ECSMonitor extends Thread
 
 						} // catch
 
+						end = System.currentTimeMillis();
+						System.out.println("=========== Temp Reading: "+(end - begin)+"  ==============");
+						begin = end;
+
 					} // if
 
-					if ( Msg.GetMessageId() == 2 ) // Humidity reading
+					if ( Msg.GetMessageId() == MessageType.HumiReading.getValue() ) // Humidity reading
 					{
+						begin = System.currentTimeMillis();
 						humiReadingTime = System.currentTimeMillis();
+
+						System.out.println("Got humi reading");
 						try
 						{
 
@@ -219,16 +243,32 @@ class ECSMonitor extends Thread
 
 						} // catch
 
+						end = System.currentTimeMillis();
+						System.out.println("=========== Humidity Reading: "+(end - begin)+"  ==============");
+						begin = end;
+
 					} // if
+
+					if (Msg.GetMessageId() == MessageType.HumiAction.getValue()) {
+						System.out.println("Got humi action");
+					}
+
+					if (Msg.GetMessageId() == MessageType.TempAction.getValue()) {
+						System.out.println("Got temp action");
+					}
+
+
 
 					if ( Msg.GetMessageId() == -5 ) //  Check Temperature Controller is alive
 					{
 						tempCtrlAliveTime = System.currentTimeMillis();
+						System.out.println("Got temp control");
 					}
 
 					if ( Msg.GetMessageId() == -4 ) //  Check Humidity Controller is alive
 					{
 						humiCtrlAliveTime = System.currentTimeMillis();
+						System.out.println("Got humi control");
 					}
 
 					// If the message ID == 99 then this is a signal that the simulation
@@ -237,6 +277,7 @@ class ECSMonitor extends Thread
 
 					if ( Msg.GetMessageId() == 99 )
 					{
+						begin = System.currentTimeMillis();
 						Done = true;
 
 						try
@@ -259,16 +300,29 @@ class ECSMonitor extends Thread
 						hi.dispose();
 						ti.dispose();
 
+						end = System.currentTimeMillis();
+						System.out.println("=========== 99 Signal: "+(end - begin)+"  ==============");
+						begin = end;
+
 					} // if
 
 				} // for
 
+				long loend = System.currentTimeMillis();
+
+
+				System.out.println("loop time: " +(loend - lobei));
+
 				mw.WriteMessage("Temperature:: " + CurrentTemperature + "F  Humidity:: " + CurrentHumidity );
 
 				long currentTime = System.currentTimeMillis();
+
+				System.out.println("Temp vs current: " + tempReadingTime + " < >" + currentTime);
+
 				if (currentTime - tempReadingTime > maxOffLineTime){
 					mw.WriteMessage("Temperature Sensor Died.");
 					try {
+						System.out.println("deactivate");
 						em.DeactivateMessageQueue(tempMsgQId);
 					} catch (RemoteException e) {
 						e.printStackTrace();
