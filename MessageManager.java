@@ -16,8 +16,6 @@
  *
  ******************************************************************************************************************/
 import MessagePackage.*;
-import Robustness.MessageManagerDaemon;
-import Robustness.Robust;
 
 import java.net.*;
 import java.rmi.*;
@@ -43,16 +41,6 @@ public class MessageManager extends UnicastRemoteObject implements RMIMessageMan
 
 	public static void main(String args[])
 	{
-
-		//Start message manager daemon process
-		Process process = null;
-		boolean isDaemonAlive = false;
-		while (!isDaemonAlive){
-			process = Robust.startNewJava("MessageManagerDaemon");
-			if (process != null){
-				isDaemonAlive = process.isAlive();
-			}
-		}
 
 		try
 		{

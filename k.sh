@@ -32,6 +32,6 @@ if [ "$1" = "-ec" ]; then
 fi
 
 if [ "$1" = "-mm" ]; then
-    `ps -e | grep 'MessageManager' | awk '{print $1}' | kill -9 $(cat) 2>/dev/null`
+    `ps -e | grep -w 'MessageManager' | awk '{print $1}' | kill -9 $(cat) 2>/dev/null`
 fi
 

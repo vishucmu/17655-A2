@@ -1,7 +1,6 @@
-package Robustness;
-
 import MessagePackage.MessageManagerInterface;
 import MessagePackage.RMIMessageManagerInterface;
+import Robustness.Robust;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -12,8 +11,11 @@ public class MessageManagerDaemon {
 
     private static final int PING_TIME_GAP = 1000;
     private static final int RECONNECT_TIME_GAP = 1000;
+    public static final String DAEMON_IDENTIFIER = "DAEMON";
 
     public static void main(String[] args) {
+
+        Robust.startNewJava("MessageManager");
 
         RMIMessageManagerInterface rmiMMI = connect(args);
 
@@ -41,6 +43,9 @@ public class MessageManagerDaemon {
 
         while (true) {
             try {
+
+                Thread.sleep(RECONNECT_TIME_GAP);
+
                 if ( args.length == 0 ){
                     result = (RMIMessageManagerInterface) Naming.lookup("MessageManager");
                 }else{
@@ -50,17 +55,14 @@ public class MessageManagerDaemon {
                 }
 
                 if (result != null){
+                    System.out.println("Connect MessageManager succeed!");
                     return result;
                 }
 
             } catch (NotBoundException | MalformedURLException | RemoteException e) {
-                System.out.println("Daemon process start failed, retrying ...");
-
-                try {
-                    Thread.sleep(RECONNECT_TIME_GAP);
-                } catch (InterruptedException e1) {
-                    //do nothing
-                }
+                System.out.println("Connect MessageManager failed, retrying ...");
+            } catch (InterruptedException e) {
+                //
             }
         }
     }
