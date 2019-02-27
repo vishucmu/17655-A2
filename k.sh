@@ -12,19 +12,19 @@ if [[ -z "$1" ]]; then
 fi
 
 if [ "$1" = "-tc" ]; then
-    `ps -e | grep 'TemperatureController' | head -1 | awk '{print $1}' | kill -9 $(cat) 2>/dev/null`
+    `ps -e | grep 'TemperatureController' | sort | head -1 | awk '{print $1}' | kill -9 $(cat) 2>/dev/null`
 fi
 
 if [ "$1" = "-ts" ]; then
-    `ps -e | grep 'TemperatureSensor' | head -1 | awk '{print $1}' | kill -9 $(cat) 2>/dev/null`
+    `ps -e | grep 'TemperatureSensor' | sort | head -1 | awk '{print $1}' | kill -9 $(cat) 2>/dev/null`
 fi
 
 if [ "$1" = "-hc" ]; then
-    `ps -e | grep 'HumidityController' | head -1 | awk '{print $1}' | kill -9 $(cat) 2>/dev/null`
+    `ps -e | grep 'HumidityController' | sort | head -1 | awk '{print $1}' | kill -9 $(cat) 2>/dev/null`
 fi
 
 if [ "$1" = "-hs" ]; then
-    `ps -e | grep 'HumiditySensor' | head -1 | awk '{print $1}' | kill -9 $(cat) 2>/dev/null`
+    `ps -e | grep 'HumiditySensor' | sort | head -1 | awk '{print $1}' | kill -9 $(cat) 2>/dev/null`
 fi
 
 if [ "$1" = "-ec" ]; then
