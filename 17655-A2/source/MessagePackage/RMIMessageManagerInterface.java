@@ -81,6 +81,6 @@ public interface RMIMessageManagerInterface extends Remote
 
 	public MessageQueue GetMessageQueue(long SenderID) throws java.rmi.RemoteException;
 
-	public void DeactivateMessageQueue(long MsgQID) throws java.rmi.RemoteException;
+	public long DeactivateMessageQueue(long MsgQID) throws java.rmi.RemoteException;
 
 } // class

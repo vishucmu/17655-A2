@@ -228,7 +228,7 @@ public class MessageManager extends UnicastRemoteObject implements RMIMessageMan
 	} // GetMessageList
 
 
-	synchronized public void DeactivateMessageQueue(long MsgQID) throws java.rmi.RemoteException{
+	synchronized public long DeactivateMessageQueue(long MsgQID) throws java.rmi.RemoteException{
 
 		//find the queue need to be deactivated.
 		MessageQueue q = null;
@@ -240,7 +240,7 @@ public class MessageManager extends UnicastRemoteObject implements RMIMessageMan
 		}
 
 		if (q == null){
-			return;
+			return -1;
 		}
 
 		//unregister the message queue
@@ -249,9 +249,11 @@ public class MessageManager extends UnicastRemoteObject implements RMIMessageMan
 		for(MessageQueue queue: MessageQueueList){
 			if(q.getMsgType() == queue.getMsgType() && q.GetId() != queue.GetId()){
 				queue.setQueueState(QueueState.Active);
-				break;
+				return queue.GetId();
 			}
 		}
+
+		return -1;
 	}
 
 	/***************************************************************************

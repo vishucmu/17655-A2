@@ -321,10 +321,13 @@ class ECSMonitor extends Thread
 				System.out.println("Temp vs current: " + tempReadingTime + " < >" + currentTime);
 
 				if (currentTime - tempReadingTime > maxOffLineTime){
-					mw.WriteMessage("Temperature Sensor Died.");
+					mw.WriteMessage("One Temperature Sensor Died.");
 					try {
 						System.out.println("deactivate");
-						em.DeactivateMessageQueue(tempMsgQId);
+						long qId = em.DeactivateMessageQueue(tempMsgQId);
+						if (qId != -1){
+							mw.WriteMessage("Another Temperature Sensor on queue "+qId +" has taken over successfully ! ");
+						}
 					} catch (RemoteException e) {
 						e.printStackTrace();
 						continue;
