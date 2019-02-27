@@ -63,7 +63,7 @@ class HumidityController
 			{
 				// Here we create an message manager interface object. This assumes
 				// that the message manager is on the local machine
-
+				// register the message queue and send the message type the component will send.
 				em = new MessageManagerInterface(MessageType.HumiConfirm);
 			}
 
@@ -85,7 +85,7 @@ class HumidityController
 			{
 				// Here we create an message manager interface object. This assumes
 				// that the message manager is NOT on the local machine
-
+				// register the message queue and send the message type the component will send.
 				em = new MessageManagerInterface(MessageType.HumiConfirm, MsgMgrIP );
 			}
 
@@ -150,7 +150,9 @@ class HumidityController
 
 				catch( Exception e )
 				{
+					// means the message Manager probably died.
 					mw.WriteMessage("Error getting message queue::" + e );
+					//wait for a while for the message manager to restart and then reconnect
 					em = Robust.sleepAndReconnect(MessageType.HumiConfirm);
 					continue;
 				} // catch

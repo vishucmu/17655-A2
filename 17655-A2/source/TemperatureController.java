@@ -63,7 +63,7 @@ class TemperatureController
 			{
 				// Here we create an message manager interface object. This assumes
 				// that the message manager is on the local machine
-
+                // register the message queue and send the message type the component will send.
 				em = new MessageManagerInterface(MessageType.TempConfirm);
 			}
 
@@ -151,7 +151,10 @@ class TemperatureController
 
 				catch( Exception e )
 				{
+				    // if failed to connect with Message Manager,
+                    // means the message Manager probably died.
 					mw.WriteMessage("Error getting message queue::" + e );
+					//wait for a while for the message manager to restart and then reconnect
 					em = Robust.sleepAndReconnect(MessageType.TempConfirm);
 					continue;
 				} // catch

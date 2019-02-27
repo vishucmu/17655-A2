@@ -88,6 +88,8 @@ public class MessageManager extends UnicastRemoteObject implements RMIMessageMan
 		// Only one queue of a message type can be active.
 		for (MessageQueue q: MessageQueueList){
 			if (q.getMsgType() == type){
+				// if find another queue with the same message type
+				// set the messageQueue as ready(standby), not active.
 				mq.setQueueState(QueueState.Ready);
 				break;
 			}
@@ -157,7 +159,7 @@ public class MessageManager extends UnicastRemoteObject implements RMIMessageMan
 	synchronized public void SendMessage(Message m ) throws RemoteException
 	{
 
-		//if the sender is from a ready queue, message won't be boardcast
+		//if the sender is from a ready(standby) queue, message won't be boardcast
 		for(MessageQueue q: MessageQueueList){
 			if(q.GetId() == m.GetSenderId() && q.getQueueState() != QueueState.Active){
 				return;
@@ -245,7 +247,8 @@ public class MessageManager extends UnicastRemoteObject implements RMIMessageMan
 
 		//unregister the message queue
 		UnRegister(MsgQID);
-		//find a ready queue to active
+		//Activate a ready(standby) queue
+		//the standby queue should have the same message type with the deactivated messageQueue
 		for(MessageQueue queue: MessageQueueList){
 			if(q.getMsgType() == queue.getMsgType() && q.GetId() != queue.GetId()){
 				queue.setQueueState(QueueState.Active);
