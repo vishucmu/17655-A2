@@ -29,10 +29,10 @@ public class ECSConsole
 		Message Msg = null;					// Message object
 		boolean Error = false;				// Error flag
 		ECSMonitor Monitor = null;			// The environmental control system monitor
-		float TempRangeHigh = (float)100.0;	// These parameters signify the temperature and humidity ranges in terms
-		float TempRangeLow = (float)0.0;	// of high value and low values. The ECSmonitor will attempt to maintain
-		float HumiRangeHigh = (float)100.0;	// this temperature and humidity. Temperatures are in degrees Fahrenheit
-		float HumiRangeLow = (float)0.0;	// and humidity is in relative humidity percentage.
+		float TempRangeHigh = (float)75.0;	// These parameters signify the temperature and humidity ranges in terms
+		float TempRangeLow = (float)70.0;	// of high value and low values. The ECSmonitor will attempt to maintain
+		float HumiRangeHigh = (float)55.0;	// this temperature and humidity. Temperatures are in degrees Fahrenheit
+		float HumiRangeLow = (float)45.0;	// and humidity is in relative humidity percentage.
 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Get the IP address of the message manager
