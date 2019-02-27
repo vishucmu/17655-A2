@@ -34,10 +34,10 @@ class ECSMonitor extends Thread
 
 	private MessageManagerInterface em = null; // Interface object to the message manager
 	private String MsgMgrIP = null;             // Message Manager IP address
-	private float TempRangeHigh = 100;       // These parameters signify the temperature and humidity ranges in terms
-	private float TempRangeLow = 0;             // of high value and low values. The ECSmonitor will attempt to maintain
-	private float HumiRangeHigh = 100;       // this temperature and humidity. Temperatures are in degrees Fahrenheit
-	private float HumiRangeLow = 0;             // and humidity is in relative humidity percentage.
+	private float TempRangeHigh = 75;       // These parameters signify the temperature and humidity ranges in terms
+	private float TempRangeLow = 70;             // of high value and low values. The ECSmonitor will attempt to maintain
+	private float HumiRangeHigh = 55;       // this temperature and humidity. Temperatures are in degrees Fahrenheit
+	private float HumiRangeLow = 45;             // and humidity is in relative humidity percentage.
 	boolean Registered = true;             // Signifies that this class is registered with an message manager.
 	MessageWindow mw = null;               // This is the message window
 	Indicator ti;                       // Temperature indicator
