@@ -31,7 +31,7 @@ public class MessageManagerInterface
 {
 	private long ParticipantId = -1;				// This processes ID
 	private RMIMessageManagerInterface em = null;	// Message manager interface object
-	private String DEFAULTPORT = "1099";			// Default message manager port
+	public static final String DEFAULTPORT = "1099";			// Default message manager port
 
 	/***************************************************************************
 	* Exceptions::

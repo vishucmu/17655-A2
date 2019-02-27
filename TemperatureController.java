@@ -151,10 +151,11 @@ class TemperatureController
 
 				catch( Exception e )
 				{
-					// if failed to connect with Message Manager,
 					// means the message Manager probably died.
 					mw.WriteMessage("Error getting message queue::" + e );
-					//wait for a while for the message manager to restart and then reconnect
+					mw.WriteMessage("Lost the connection to MessageManager, retrying ... ");
+					mw.WriteMessage("...");
+					//reconnect the Message Manager here:
 					em = Robust.sleepAndReconnect(MessageType.TempConfirm);
 					continue;
 				} // catch

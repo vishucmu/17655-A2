@@ -159,24 +159,12 @@ class ECSMonitor extends Thread
 				} // try
 				catch( Exception e )
 				{
-					// if failed to get message Queue, it means probably the MessageManager failed.
+					// means the message Manager probably died.
 					mw.WriteMessage("Error getting message queue::" + e );
-					mw.WriteMessage("Detected MessageManager lost connected, trying to restart MessageManager ... ");
+					mw.WriteMessage("Lost the connection to MessageManager, retrying ... ");
 					mw.WriteMessage("...");
-					//restart the Message Manager here:
-					Process p = Robust.startNewJava("MessageManager");
-					if(p.isAlive()){
-						System.out.println("New MessageManager has been restart up!");
-						try {
-							Thread.sleep(Robust.WAITING_TIME_FOR_RESTART_MSG_MGR);
-							// Reconnect to the new Message Manager
-							em = Robust.newMsgMgr(MessageType.Monitor);
-						}catch (InterruptedException e1){
-							e1.printStackTrace();
-						} catch (RemoteException e1) {
-							//do nothing and retry
-						}
-					}
+					//reconnect the Message Manager here:
+					em = Robust.sleepAndReconnect(MessageType.Monitor);
 					continue;
 				} // catch
 

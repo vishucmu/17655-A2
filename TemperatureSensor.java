@@ -165,8 +165,10 @@ class TemperatureSensor
 				catch (Exception e)
 				{
 					// means the message Manager probably died.
-					System.out.println( "Error Posting Temperature:: " + e );
-					//wait for a while for the message manager to restart and then reconnect
+					mw.WriteMessage("Error getting message queue::" + e );
+					mw.WriteMessage("Lost the connection to MessageManager, retrying ... ");
+					mw.WriteMessage("...");
+					//reconnect the Message Manager here:
 					em = Robust.sleepAndReconnect(MessageType.TempReading);
 					continue;
 

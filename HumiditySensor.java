@@ -165,7 +165,11 @@ class HumiditySensor
 				} // try
 				catch (Exception e)
 				{
-					System.out.println( "Error Posting Relative Humidity:: " + e );
+					// means the message Manager probably died.
+					mw.WriteMessage("Error getting message queue::" + e );
+					mw.WriteMessage("Lost the connection to MessageManager, retrying ... ");
+					mw.WriteMessage("...");
+					//reconnect the Message Manager here:
 					em = Robust.sleepAndReconnect(MessageType.HumiReading);
 					continue;
 				} // catch

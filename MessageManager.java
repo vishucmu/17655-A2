@@ -16,6 +16,9 @@
  *
  ******************************************************************************************************************/
 import MessagePackage.*;
+import Robustness.MessageManagerDaemon;
+import Robustness.Robust;
+
 import java.net.*;
 import java.rmi.*;
 import java.rmi.server.*;
@@ -40,6 +43,17 @@ public class MessageManager extends UnicastRemoteObject implements RMIMessageMan
 
 	public static void main(String args[])
 	{
+
+		//Start message manager daemon process
+		Process process = null;
+		boolean isDaemonAlive = false;
+		while (!isDaemonAlive){
+			process = Robust.startNewJava("MessageManagerDaemon");
+			if (process != null){
+				isDaemonAlive = process.isAlive();
+			}
+		}
+
 		try
 		{
 			// Here we start up the server. We first must instantiate a class of type PolicyDB
@@ -257,6 +271,10 @@ public class MessageManager extends UnicastRemoteObject implements RMIMessageMan
 		}
 
 		return -1;
+	}
+
+	synchronized public boolean ping() throws java.rmi.RemoteException{
+		return true;
 	}
 
 	/***************************************************************************
