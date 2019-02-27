@@ -125,7 +125,7 @@ class TemperatureSensor
 
 			mw.WriteMessage("\nInitializing Temperature Simulation::" );
 
-			CurrentTemperature = (float)50.00;
+			CurrentTemperature = (float)70.00;
 
 			if ( CoinToss() )
 			{

@@ -128,7 +128,7 @@ class HumiditySensor
 
 			mw.WriteMessage("\nInitializing Humidity Simulation::" );
 
-			RelativeHumidity = GetRandomNumber() * (float) 100.00;
+			RelativeHumidity = (float)50.00; //GetRandomNumber() * (float) 100.00;
 
 			if ( CoinToss() )
 			{
